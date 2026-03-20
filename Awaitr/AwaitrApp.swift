@@ -12,7 +12,7 @@ import SwiftData
 struct AwaitrApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            Item.self,
+            WaitItem.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
@@ -22,6 +22,10 @@ struct AwaitrApp: App {
             fatalError("Could not create ModelContainer: \(error)")
         }
     }()
+
+    init() {
+        NotificationService.registerCategories()
+    }
 
     var body: some Scene {
         WindowGroup {

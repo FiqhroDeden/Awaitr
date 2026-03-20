@@ -6,56 +6,76 @@
 //
 
 import SwiftUI
-import SwiftData
+
+// MARK: - Tab Definition
+
+enum AppTab: String, CaseIterable, Identifiable {
+    case home
+    case archive
+    case settings
+
+    var id: String { rawValue }
+
+    var label: LocalizedStringKey {
+        switch self {
+        case .home: "Home"
+        case .archive: "Archive"
+        case .settings: "Settings"
+        }
+    }
+
+    var systemImage: String {
+        switch self {
+        case .home: "house.fill"
+        case .archive: "archivebox.fill"
+        case .settings: "gearshape.fill"
+        }
+    }
+}
+
+// MARK: - Content View
 
 struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
+    @State private var selectedTab: AppTab = .home
+    @State private var navigationPath = NavigationPath()
+    @State private var showAddSheet = false
 
     var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
-                    }
+        ZStack(alignment: .bottomTrailing) {
+            TabView(selection: $selectedTab) {
+                Tab(value: .home) {
+                    DashboardView(path: $navigationPath, onAddTapped: { showAddSheet = true })
+                } label: {
+                    Label(AppTab.home.label, systemImage: AppTab.home.systemImage)
                 }
-                .onDelete(perform: deleteItems)
-            }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
-                }
-            }
-        } detail: {
-            Text("Select an item")
-        }
-    }
 
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
-        }
-    }
+                Tab(value: .archive) {
+                    ArchiveView()
+                } label: {
+                    Label(AppTab.archive.label, systemImage: AppTab.archive.systemImage)
+                }
 
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
+                Tab(value: .settings) {
+                    SettingsView()
+                } label: {
+                    Label(AppTab.settings.label, systemImage: AppTab.settings.systemImage)
+                }
             }
+            .tabViewStyle(.automatic)
+
+            if selectedTab == .home {
+                FABButton { showAddSheet = true }
+                    .padding(.trailing, Theme.Spacing.xl)
+                    .padding(.bottom, 80)
+            }
+        }
+        .sheet(isPresented: $showAddSheet) {
+            AddEditItemView()
         }
     }
 }
 
 #Preview {
     ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
+        .modelContainer(for: WaitItem.self, inMemory: true)
 }
