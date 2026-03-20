@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 // MARK: - Tab Definition
 
@@ -72,6 +73,7 @@ struct ContentView: View {
         .sheet(isPresented: $showAddSheet) {
             AddEditItemView()
         }
+        .preferredColorScheme(.light)
     }
 }
 

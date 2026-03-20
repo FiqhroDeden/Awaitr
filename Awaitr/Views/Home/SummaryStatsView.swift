@@ -6,7 +6,7 @@
 import SwiftUI
 
 struct SummaryStatsView: View {
-    let counts: [WaitCategory: Int]
+    let items: [WaitItem]
     @Binding var selectedCategory: WaitCategory?
 
     private let columns = [
@@ -27,18 +27,28 @@ struct SummaryStatsView: View {
 
     private func statCell(for category: WaitCategory) -> some View {
         let isSelected = selectedCategory == category
-        let count = counts[category] ?? 0
+        let categoryItems = items.filter { $0.category == category }
+        let count = categoryItems.count
 
         return GlassCard(category: category) {
             VStack(spacing: Theme.Spacing.xs) {
-                Text(category.emoji)
-                    .font(.title2)
+                // Top row: emoji + label
+                HStack(spacing: 4) {
+                    Text(category.emoji)
+                        .font(.system(size: 14))
+                    Text(category.shortLabel.uppercased())
+                        .font(.system(size: 11, weight: .bold, design: .rounded))
+                        .foregroundStyle(category.color)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
 
+                // Big count number
                 Text("\(count)")
                     .font(Theme.Typography.numericCounter)
                     .foregroundStyle(Theme.TextColors.dark)
 
-                Text(category.shortLabel)
+                // Status sub-text
+                Text(dominantStatusText(for: categoryItems))
                     .font(Theme.Typography.caption)
                     .foregroundStyle(Theme.TextColors.muted)
             }
@@ -57,13 +67,39 @@ struct SummaryStatsView: View {
         .accessibilityLabel("\(count) \(category.shortLabel) items")
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
+
+    // MARK: - Helpers
+
+    private func dominantStatusText(for categoryItems: [WaitItem]) -> String {
+        guard !categoryItems.isEmpty else { return "no items" }
+
+        // Count items per non-submitted status
+        var statusCounts: [WaitStatus: Int] = [:]
+        for item in categoryItems {
+            if item.status != .submitted {
+                statusCounts[item.status, default: 0] += 1
+            }
+        }
+
+        // If all submitted, show "submitted"
+        guard let (dominantStatus, count) = statusCounts.max(by: { $0.value < $1.value }) else {
+            return "submitted"
+        }
+
+        return "\(count) \(dominantStatus.shortLabel.lowercased())"
+    }
 }
 
 #Preview {
     @Previewable @State var selected: WaitCategory? = .job
 
     SummaryStatsView(
-        counts: [.job: 3, .product: 2, .admin: 1, .event: 2],
+        items: [
+            WaitItem(title: "Job 1", category: .job),
+            WaitItem(title: "Job 2", category: .job),
+            WaitItem(title: "Product 1", category: .product),
+            WaitItem(title: "Event 1", category: .event),
+        ],
         selectedCategory: $selected
     )
     .padding(.vertical)

@@ -34,8 +34,8 @@ struct DashboardView: View {
         viewModel?.filteredItems(from: activeItems) ?? activeItems
     }
 
-    private var categoryCounts: [WaitCategory: Int] {
-        viewModel?.categoryCounts(from: activeItems) ?? [:]
+    private var activeItemCount: Int {
+        activeItems.count
     }
 
     // MARK: - Body
@@ -53,6 +53,18 @@ struct DashboardView: View {
                     }
                 }
                 .padding(.top)
+            }
+            .background {
+                LinearGradient(
+                    colors: [
+                        Color(hex: "F7F6FF"),
+                        Color(hex: "EFF3FF"),
+                        Color(hex: "F0FFF6")
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
             }
             .navigationTitle("Awaitr")
             .searchable(text: searchTextBinding, prompt: "Search items")
@@ -76,13 +88,16 @@ struct DashboardView: View {
 
     private var statsSection: some View {
         SummaryStatsView(
-            counts: categoryCounts,
+            items: activeItems,
             selectedCategory: selectedCategoryBinding
         )
     }
 
     private var filterSection: some View {
-        CategoryFilterBar(selectedCategory: selectedCategoryBinding)
+        CategoryFilterBar(
+            selectedCategory: selectedCategoryBinding,
+            totalCount: activeItemCount
+        )
     }
 
     @ViewBuilder

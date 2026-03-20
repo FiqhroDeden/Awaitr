@@ -11,116 +11,87 @@ struct WaitItemCard: View {
     var body: some View {
         GlassCard(category: item.category) {
             VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
-                titleRow
-                badgesRow
-                metadataRow
+                topBadgesRow
+                titleText
+                daysText
+                MiniPipelineBar(status: item.status, category: item.category)
             }
         }
     }
 
-    // MARK: - Title Row
+    // MARK: - Top Badges Row
 
-    private var titleRow: some View {
+    private var topBadgesRow: some View {
+        HStack(spacing: Theme.Spacing.sm) {
+            CategoryBadge(category: item.category)
+            PriorityDot(priority: item.priority)
+            Spacer()
+            StatusBadge(status: item.status)
+        }
+    }
+
+    // MARK: - Title
+
+    private var titleText: some View {
         Text(item.title)
             .font(Theme.Typography.cardTitle)
             .foregroundStyle(Theme.TextColors.dark)
-            .lineLimit(2)
+            .lineLimit(1)
             .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    // MARK: - Badges Row
+    // MARK: - Days Text
 
-    private var badgesRow: some View {
-        HStack(spacing: Theme.Spacing.sm) {
-            CategoryBadge(category: item.category)
-            StatusBadge(status: item.status)
-            Spacer()
-            MiniPipeline(status: item.status, category: item.category)
-        }
+    private var daysText: some View {
+        Text(daysLabel)
+            .font(Theme.Typography.caption)
+            .foregroundStyle(Theme.TextColors.muted)
     }
 
-    // MARK: - Metadata Row
-
-    private var metadataRow: some View {
-        HStack(spacing: Theme.Spacing.xs) {
-            PriorityDot(priority: item.priority)
-
-            Text(item.daysWaitingLabel)
-                .font(Theme.Typography.caption)
-                .foregroundStyle(Theme.TextColors.muted)
-
-            Spacer()
-
-            if item.isOverdue {
-                Text("Overdue")
-                    .font(Theme.Typography.caption)
-                    .foregroundStyle(Theme.PriorityColors.high)
-            }
+    private var daysLabel: String {
+        let days = item.daysWaiting
+        switch days {
+        case 0: return "Submitted today"
+        case 1: return "Submitted 1 day ago"
+        default: return "Submitted \(days) days ago"
         }
     }
 }
 
-// MARK: - Mini Pipeline
+// MARK: - Mini Pipeline Bar
 
-struct MiniPipeline: View {
+struct MiniPipelineBar: View {
     let status: WaitStatus
     let category: WaitCategory
 
+    private let barHeight: CGFloat = 4
+    private let barSpacing: CGFloat = 4
+
     var body: some View {
-        HStack(spacing: 4) {
-            ForEach(0..<3) { stageIndex in
-                pipelineDot(at: stageIndex)
+        HStack(spacing: barSpacing) {
+            ForEach(Array(WaitStatus.allInPipelineOrder.enumerated()), id: \.offset) { index, _ in
+                bar(at: index)
             }
-            outcomeIndicator
         }
     }
 
-    private func pipelineDot(at stageIndex: Int) -> some View {
-        let isTerminal = status.isTerminal
-        let currentIndex = status.pipelineIndex
-
-        return Group {
-            if !isTerminal, let currentIndex, currentIndex == stageIndex {
-                // Current stage: larger filled dot with ring
-                Circle()
-                    .fill(category.color)
-                    .frame(width: 8, height: 8)
-                    .overlay(
-                        Circle()
-                            .stroke(category.color.opacity(0.4), lineWidth: 1.5)
-                            .frame(width: 12, height: 12)
-                    )
-            } else if isTerminal || (currentIndex != nil && currentIndex! >= stageIndex) {
-                // Reached: filled dot
-                Circle()
-                    .fill(category.color)
-                    .frame(width: 6, height: 6)
-            } else {
-                // Unreached: outlined gray dot
-                Circle()
-                    .stroke(Theme.TextColors.muted.opacity(0.4), lineWidth: 1)
-                    .frame(width: 6, height: 6)
-            }
-        }
-        .frame(width: 14, height: 14)
+    private func bar(at index: Int) -> some View {
+        RoundedRectangle(cornerRadius: 2)
+            .fill(barColor(at: index))
+            .frame(height: barHeight)
     }
 
-    @ViewBuilder
-    private var outcomeIndicator: some View {
+    private func barColor(at index: Int) -> Color {
         switch status {
         case .accepted:
-            Image(systemName: "checkmark")
-                .font(.system(size: 8, weight: .bold))
-                .foregroundStyle(Theme.CategoryColors.event)
-                .frame(width: 14, height: 14)
+            return Theme.CategoryColors.event // green for accepted
         case .rejected:
-            Image(systemName: "xmark")
-                .font(.system(size: 8, weight: .bold))
-                .foregroundStyle(Theme.PriorityColors.high)
-                .frame(width: 14, height: 14)
+            return Theme.PriorityColors.high // red for rejected
         default:
-            Color.clear
-                .frame(width: 14, height: 14)
+            guard let currentIndex = status.pipelineIndex else {
+                return Color.black.opacity(0.06)
+            }
+            return index <= currentIndex ? category.color : Color.black.opacity(0.06)
         }
     }
 }
