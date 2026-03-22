@@ -194,12 +194,14 @@ extension OnboardingView {
     }
 
     private var pipelineDemo: some View {
-        GlassCard {
+        let demoTemplate = PipelineTemplate.jobApplication
+        let demoStages = demoTemplate.allStagesInOrder
+        return GlassCard {
             VStack(spacing: Theme.Spacing.lg) {
                 HStack(spacing: 0) {
-                    ForEach(Array(WaitStatus.allCases.enumerated()), id: \.element) { index, status in
+                    ForEach(Array(demoStages.enumerated()), id: \.element) { index, _ in
                         pipelineDot(index: index)
-                        if index < WaitStatus.allCases.count - 1 {
+                        if index < demoStages.count - 1 {
                             pipelineConnector(filled: index < 2)
                         }
                     }
@@ -207,8 +209,8 @@ extension OnboardingView {
                 .padding(.horizontal, Theme.Spacing.sm)
 
                 HStack {
-                    ForEach(WaitStatus.allCases) { status in
-                        Text(status.shortLabel)
+                    ForEach(demoStages, id: \.self) { status in
+                        Text(demoTemplate.shortLabel(for: status))
                             .font(.system(size: 9, weight: .medium, design: .rounded))
                             .foregroundStyle(Theme.TextColors.muted)
                             .frame(maxWidth: .infinity)

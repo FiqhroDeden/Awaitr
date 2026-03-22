@@ -18,12 +18,13 @@ struct WaitItemTests {
 
         #expect(item.title == "Test")
         #expect(item.category == .job)
-        #expect(item.status == .submitted)
+        #expect(item.status == .pending)
+        #expect(item.template == .jobApplication)
         #expect(item.priority == .medium)
         #expect(item.notes.isEmpty)
         #expect(item.isArchived == false)
         #expect(item.statusHistory.count == 1)
-        #expect(item.statusHistory.first?.status == .submitted)
+        #expect(item.statusHistory.first?.status == .pending)
     }
 
     @Test func initWithAllParameters() {
@@ -32,6 +33,7 @@ struct WaitItemTests {
         let item = WaitItem(
             title: "Full Item",
             category: .admin,
+            template: .permit,
             submittedAt: date,
             priority: .high,
             notes: "Some notes",
@@ -39,6 +41,7 @@ struct WaitItemTests {
         )
 
         #expect(item.category == .admin)
+        #expect(item.template == .permit)
         #expect(item.priority == .high)
         #expect(item.notes == "Some notes")
         #expect(item.expectedAt == expected)
@@ -86,7 +89,7 @@ struct WaitItemTests {
     @Test func notOverdueWhenTerminal() {
         let pastDate = Calendar.current.date(byAdding: .day, value: -1, to: .now)!
         let item = WaitItem(title: "Test", category: .job, expectedAt: pastDate)
-        item.transition(to: .accepted)
+        item.transition(to: .positive)
         #expect(!item.isOverdue)
     }
 
@@ -132,9 +135,25 @@ struct WaitItemTests {
 
     @Test func latestStatusEntryReturnsLast() {
         let item = WaitItem(title: "Test", category: .job)
-        #expect(item.latestStatusEntry?.status == .submitted)
+        #expect(item.latestStatusEntry?.status == .pending)
 
-        item.transition(to: .inReview)
-        #expect(item.latestStatusEntry?.status == .inReview)
+        item.transition(to: .active)
+        #expect(item.latestStatusEntry?.status == .active)
+    }
+
+    // MARK: - Template Default
+
+    @Test func defaultTemplateMatchesCategory() {
+        let jobItem = WaitItem(title: "Test", category: .job)
+        #expect(jobItem.template == .jobApplication)
+
+        let productItem = WaitItem(title: "Test", category: .product)
+        #expect(productItem.template == .preOrder)
+
+        let adminItem = WaitItem(title: "Test", category: .admin)
+        #expect(adminItem.template == .document)
+
+        let eventItem = WaitItem(title: "Test", category: .event)
+        #expect(eventItem.template == .eventRegistration)
     }
 }

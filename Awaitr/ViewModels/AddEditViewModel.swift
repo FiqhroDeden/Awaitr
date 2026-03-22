@@ -12,6 +12,13 @@ final class AddEditViewModel {
 
     var title: String = ""
     var category: WaitCategory = .job
+    var template: PipelineTemplate = .jobApplication
+
+    func updateCategory(_ newCategory: WaitCategory) {
+        guard newCategory != category else { return }
+        category = newCategory
+        template = PipelineTemplate.defaultTemplate(for: newCategory)
+    }
     var submittedAt: Date = .now
     var expectedAt: Date?
     var followUpAt: Date?
@@ -45,6 +52,7 @@ final class AddEditViewModel {
 
         self.title = item.title
         self.category = item.category
+        self.template = item.template
         self.submittedAt = item.submittedAt
         self.expectedAt = item.expectedAt
         self.followUpAt = item.followUpAt
@@ -70,6 +78,7 @@ final class AddEditViewModel {
         guard let item = existingItem else { return true }
         return title != item.title
             || category != item.category
+            || template != item.template
             || submittedAt != item.submittedAt
             || expectedAt != item.expectedAt
             || followUpAt != item.followUpAt
@@ -91,6 +100,7 @@ final class AddEditViewModel {
             // Edit existing
             item.title = trimmedTitle
             item.category = category
+            item.template = template
             item.submittedAt = submittedAt
             item.expectedAt = resolvedExpectedAt
             item.followUpAt = resolvedFollowUpAt
@@ -102,7 +112,7 @@ final class AddEditViewModel {
             NotificationService.cancel(for: item.id)
             if let followUp = resolvedFollowUpAt {
                 await NotificationService.scheduleFollowUp(
-                    for: item.id, title: trimmedTitle, category: category, at: followUp
+                    for: item.id, title: trimmedTitle, category: category, submittedAt: submittedAt, at: followUp
                 )
                 item.notificationId = NotificationService.notificationId(for: item.id)
             } else {
@@ -113,6 +123,7 @@ final class AddEditViewModel {
             let newItem = WaitItem(
                 title: trimmedTitle,
                 category: category,
+                template: template,
                 submittedAt: submittedAt,
                 priority: priority,
                 notes: notes,
@@ -122,7 +133,7 @@ final class AddEditViewModel {
 
             if let followUp = resolvedFollowUpAt {
                 await NotificationService.scheduleFollowUp(
-                    for: newItem.id, title: trimmedTitle, category: category, at: followUp
+                    for: newItem.id, title: trimmedTitle, category: category, submittedAt: submittedAt, at: followUp
                 )
                 newItem.notificationId = NotificationService.notificationId(for: newItem.id)
             }

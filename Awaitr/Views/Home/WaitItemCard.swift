@@ -8,13 +8,15 @@ import SwiftUI
 struct WaitItemCard: View {
     let item: WaitItem
 
+    private var template: PipelineTemplate { item.template }
+
     var body: some View {
         GlassCard(category: item.category) {
             VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                 topBadgesRow
                 titleText
                 daysText
-                MiniPipelineBar(status: item.status, category: item.category)
+                MiniPipelineBar(status: item.status, template: template)
             }
         }
     }
@@ -26,7 +28,7 @@ struct WaitItemCard: View {
             CategoryBadge(category: item.category)
             PriorityDot(priority: item.priority)
             Spacer()
-            StatusBadge(status: item.status)
+            StatusBadge(status: item.status, template: template)
         }
     }
 
@@ -62,14 +64,14 @@ struct WaitItemCard: View {
 
 struct MiniPipelineBar: View {
     let status: WaitStatus
-    let category: WaitCategory
+    let template: PipelineTemplate
 
     private let barHeight: CGFloat = 4
     private let barSpacing: CGFloat = 4
 
     var body: some View {
         HStack(spacing: barSpacing) {
-            ForEach(Array(WaitStatus.allInPipelineOrder.enumerated()), id: \.offset) { index, _ in
+            ForEach(Array(template.allStagesInOrder.enumerated()), id: \.offset) { index, _ in
                 bar(at: index)
             }
         }
@@ -83,15 +85,15 @@ struct MiniPipelineBar: View {
 
     private func barColor(at index: Int) -> Color {
         switch status {
-        case .accepted:
-            return Theme.CategoryColors.event // green for accepted
-        case .rejected:
-            return Theme.PriorityColors.high // red for rejected
+        case .positive:
+            return Theme.CategoryColors.event // green for positive
+        case .negative:
+            return Theme.PriorityColors.high // red for negative
         default:
-            guard let currentIndex = status.pipelineIndex else {
+            guard let currentIndex = template.pipelineIndex(of: status) else {
                 return Color.black.opacity(0.06)
             }
-            return index <= currentIndex ? category.color : Color.black.opacity(0.06)
+            return index <= currentIndex ? Color(category: template.category) : Color.black.opacity(0.06)
         }
     }
 }
@@ -111,21 +113,22 @@ struct PressableCardStyle: ButtonStyle {
 #Preview("Card States") {
     ScrollView {
         VStack(spacing: 16) {
-            ForEach(WaitStatus.allCases) { status in
+            let tmpl = PipelineTemplate.jobApplication
+            ForEach(tmpl.allStagesInOrder, id: \.self) { status in
                 WaitItemCard(item: {
-                    let item = WaitItem(title: "Sample — \(status.label)", category: .job, priority: .high)
+                    let item = WaitItem(title: "Sample — \(tmpl.label(for: status))", category: .job, template: tmpl, priority: .high)
                     switch status {
-                    case .submitted: break
-                    case .inReview: item.transition(to: .inReview)
-                    case .awaiting:
-                        item.transition(to: .inReview)
-                        item.transition(to: .awaiting)
-                    case .accepted:
-                        item.transition(to: .inReview)
-                        item.transition(to: .awaiting)
-                        item.transition(to: .accepted)
-                    case .rejected:
-                        item.transition(to: .rejected)
+                    case .pending: break
+                    case .active: item.transition(to: .active)
+                    case .finalReview:
+                        item.transition(to: .active)
+                        item.transition(to: .finalReview)
+                    case .positive:
+                        item.transition(to: .active)
+                        item.transition(to: .finalReview)
+                        item.transition(to: .positive)
+                    case .negative:
+                        item.transition(to: .negative)
                     }
                     return item
                 }())

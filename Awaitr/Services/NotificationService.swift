@@ -36,15 +36,21 @@ enum NotificationService {
         for itemId: UUID,
         title: String,
         category: WaitCategory,
+        submittedAt: Date,
         at date: Date
     ) async {
         let id = notificationId(for: itemId)
 
+        // Calculate days waiting at the scheduled notification time
+        let daysWaiting = Calendar.current.dateComponents([.day], from: submittedAt, to: date).day ?? 0
+
         let content = UNMutableNotificationContent()
-        content.title = "Follow Up"
-        content.body = "\(category.emoji) \(title) — time to check in!"
+        content.title = "Time to follow up!"
+        content.body = "Check in on: \(title) — it's been \(daysWaiting) days since submission."
         content.sound = .default
         content.categoryIdentifier = "FOLLOW_UP"
+        content.userInfo = ["itemId": itemId.uuidString]
+
 
         let components = Calendar.current.dateComponents(
             [.year, .month, .day, .hour, .minute],

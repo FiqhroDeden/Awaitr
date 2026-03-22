@@ -5,8 +5,9 @@
 
 import SwiftUI
 
-struct TimelineView: View {
+struct StatusTimelineView: View {
     let entries: [StatusEntry]
+    let template: PipelineTemplate
     let categoryColor: Color
 
     private var reversedEntries: [StatusEntry] {
@@ -42,7 +43,7 @@ struct TimelineView: View {
 
             // Text
             VStack(alignment: .leading, spacing: 2) {
-                Text(entry.status.label)
+                Text(template.label(for: entry.status))
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(Theme.TextColors.dark)
 
@@ -56,11 +57,12 @@ struct TimelineView: View {
 }
 
 #Preview {
-    TimelineView(
+    StatusTimelineView(
         entries: [
-            StatusEntry(status: .submitted, timestamp: Calendar.current.date(byAdding: .day, value: -12, to: .now)!),
-            StatusEntry(status: .inReview, timestamp: Calendar.current.date(byAdding: .day, value: -6, to: .now)!)
+            StatusEntry(status: .pending, timestamp: Calendar.current.date(byAdding: .day, value: -12, to: .now)!),
+            StatusEntry(status: .active, timestamp: Calendar.current.date(byAdding: .day, value: -6, to: .now)!)
         ],
+        template: .jobApplication,
         categoryColor: Theme.CategoryColors.job
     )
     .padding()

@@ -72,6 +72,7 @@ struct AddEditItemView: View {
             VStack(spacing: Theme.Spacing.lg) {
                 titleCard(vm)
                 categoryCard(vm)
+                templateCard(vm)
                 datesCard(vm)
                 priorityCard(vm)
                 notesCard(vm)
@@ -112,8 +113,55 @@ struct AddEditItemView: View {
                 sectionLabel("CATEGORY")
                 CategoryPickerView(selectedCategory: Binding(
                     get: { vm.category },
-                    set: { vm.category = $0 }
+                    set: { vm.updateCategory($0) }
                 ))
+            }
+        }
+    }
+
+    // MARK: - Template Card
+
+    private func templateCard(_ vm: AddEditViewModel) -> some View {
+        GlassCard {
+            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+                sectionLabel("TYPE")
+                templateSelector(vm)
+            }
+        }
+    }
+
+    private func templateSelector(_ vm: AddEditViewModel) -> some View {
+        let templates = PipelineTemplate.templates(for: vm.category)
+        return HStack(spacing: 8) {
+            ForEach(templates) { tmpl in
+                let isSelected = vm.template == tmpl
+                Button {
+                    withAnimation(Theme.Animations.springFast) {
+                        vm.template = tmpl
+                    }
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: tmpl.icon)
+                            .font(.system(size: 12))
+                        Text(tmpl.label)
+                            .font(.system(size: 13, weight: .medium))
+                    }
+                    .foregroundStyle(isSelected ? Color(category: vm.category) : Theme.TextColors.muted)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .background(
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(isSelected ? Color(category: vm.category).opacity(0.08) : .clear)
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(
+                                isSelected ? Color(category: vm.category) : Color.black.opacity(0.06),
+                                lineWidth: isSelected ? 1.5 : 1
+                            )
+                    )
+                }
+                .buttonStyle(.plain)
             }
         }
     }

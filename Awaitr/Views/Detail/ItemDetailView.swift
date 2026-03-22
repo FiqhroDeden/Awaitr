@@ -14,6 +14,8 @@ struct ItemDetailView: View {
     @State private var showDeleteConfirmation = false
     @State private var showEditSheet = false
 
+    private var template: PipelineTemplate { item.template }
+
     var body: some View {
         ScrollView {
             VStack(spacing: Theme.Spacing.lg) {
@@ -70,7 +72,7 @@ struct ItemDetailView: View {
         GlassCard {
             VStack(alignment: .leading, spacing: Theme.Spacing.md) {
                 sectionLabel("STATUS PIPELINE")
-                PipelineProgressView(status: item.status)
+                PipelineProgressView(status: item.status, template: template)
             }
         }
     }
@@ -119,7 +121,7 @@ struct ItemDetailView: View {
             GlassCard {
                 VStack(alignment: .leading, spacing: Theme.Spacing.md) {
                     sectionLabel("TIMELINE")
-                    TimelineView(entries: item.statusHistory, categoryColor: item.category.color)
+                    StatusTimelineView(entries: item.statusHistory, template: template, categoryColor: item.category.color)
                 }
             }
         }
@@ -147,9 +149,9 @@ struct ItemDetailView: View {
     private var actionButtons: some View {
         HStack(spacing: 10) {
             if !item.status.isTerminal {
-                if let next = item.status.nextStatus {
-                    // Non-terminal with next (submitted, inReview)
-                    primaryButton("Advance to \(next.shortLabel)") {
+                if let next = template.nextStatus(after: item.status) {
+                    // Non-terminal with next stage
+                    primaryButton("Advance to \(template.shortLabel(for: next))") {
                         withAnimation(Theme.Animations.springMedium) {
                             viewModel?.advanceStatus()
                         }
@@ -157,14 +159,14 @@ struct ItemDetailView: View {
                     editButton
                     deleteIconButton
                 } else {
-                    // Awaiting (no nextStatus, not terminal)
+                    // At last non-terminal stage — show accept/reject
                     acceptButton
                     rejectButton
                     editButton
                     deleteIconButton
                 }
             } else {
-                // Terminal (accepted/rejected)
+                // Terminal (positive/negative)
                 editButton
                 deleteIconButton
             }
@@ -178,7 +180,7 @@ struct ItemDetailView: View {
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 12)
-                .background(Theme.CategoryColors.job)
+                .background(item.category.color)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
         }
     }
@@ -189,7 +191,7 @@ struct ItemDetailView: View {
                 viewModel?.acceptItem()
             }
         } label: {
-            Text("Accept")
+            Text(template.shortLabel(for: .positive))
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity)
@@ -205,7 +207,7 @@ struct ItemDetailView: View {
                 viewModel?.rejectItem()
             }
         } label: {
-            Text("Reject")
+            Text(template.shortLabel(for: .negative))
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundStyle(Color(hex: "E24B4A"))
                 .padding(.vertical, 12)
@@ -219,10 +221,10 @@ struct ItemDetailView: View {
         Button { showEditSheet = true } label: {
             Text("Edit")
                 .font(.system(size: 14, weight: .semibold))
-                .foregroundStyle(Theme.CategoryColors.job)
+                .foregroundStyle(item.category.color)
                 .padding(.vertical, 12)
                 .padding(.horizontal, 16)
-                .background(Theme.CategoryColors.job.opacity(0.1))
+                .background(item.category.color.opacity(0.1))
                 .clipShape(RoundedRectangle(cornerRadius: 12))
         }
     }

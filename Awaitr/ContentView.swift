@@ -40,6 +40,8 @@ struct ContentView: View {
     @State private var selectedTab: AppTab = .home
     @State private var navigationPath = NavigationPath()
     @State private var showAddSheet = false
+    @Environment(NavigationCoordinator.self) private var coordinator
+    @Environment(\.modelContext) private var modelContext
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
@@ -66,18 +68,38 @@ struct ContentView: View {
 
             if selectedTab == .home {
                 FABButton { showAddSheet = true }
-                    .padding(.trailing, Theme.Spacing.xl)
-                    .padding(.bottom, 80)
+                    .ignoresSafeArea(.keyboard)
             }
         }
         .sheet(isPresented: $showAddSheet) {
             AddEditItemView()
         }
         .preferredColorScheme(.light)
+        .onChange(of: coordinator.pendingItemId) { _, itemId in
+            guard let itemId else { return }
+            navigateToItem(id: itemId)
+            coordinator.pendingItemId = nil
+        }
+    }
+
+    // MARK: - Deep Link Navigation
+
+    private func navigateToItem(id: UUID) {
+        // Fetch the item from SwiftData
+        let descriptor = FetchDescriptor<WaitItem>(predicate: #Predicate { $0.id == id })
+        guard let item = try? modelContext.fetch(descriptor).first else { return }
+
+        // Switch to home tab and push detail view
+        selectedTab = .home
+        navigationPath = NavigationPath()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            navigationPath.append(AppDestination.itemDetail(item))
+        }
     }
 }
 
 #Preview {
     ContentView()
         .modelContainer(for: WaitItem.self, inMemory: true)
+        .environment(NavigationCoordinator())
 }

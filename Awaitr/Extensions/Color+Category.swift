@@ -25,11 +25,11 @@ extension Color {
 
     init(status: WaitStatus) {
         switch status {
-        case .submitted: self = .gray
-        case .inReview: self = .blue
-        case .awaiting: self = .orange
-        case .accepted: self = Theme.CategoryColors.event
-        case .rejected: self = Theme.PriorityColors.high
+        case .pending: self = .gray
+        case .active: self = .blue
+        case .finalReview: self = .orange
+        case .positive: self = Theme.CategoryColors.event
+        case .negative: self = Theme.PriorityColors.high
         }
     }
 }

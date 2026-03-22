@@ -37,11 +37,11 @@ final class ArchiveViewModel {
     // MARK: - Stats
 
     func totalAccepted(from items: [WaitItem]) -> Int {
-        items.filter { $0.status == .accepted }.count
+        items.filter { $0.status == .positive }.count
     }
 
     func totalRejected(from items: [WaitItem]) -> Int {
-        items.filter { $0.status == .rejected }.count
+        items.filter { $0.status == .negative }.count
     }
 
     func acceptanceRate(from items: [WaitItem]) -> Double {

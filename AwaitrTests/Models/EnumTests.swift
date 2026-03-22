@@ -46,49 +46,106 @@ struct EnumTests {
         #expect(WaitStatus.allCases.count == 5)
     }
 
-    @Test func statusPipelineStages() {
-        #expect(WaitStatus.pipelineStages.count == 3)
-        #expect(WaitStatus.pipelineStages == [.submitted, .inReview, .awaiting])
-    }
-
     @Test func statusTerminalDetection() {
-        #expect(!WaitStatus.submitted.isTerminal)
-        #expect(!WaitStatus.inReview.isTerminal)
-        #expect(!WaitStatus.awaiting.isTerminal)
-        #expect(WaitStatus.accepted.isTerminal)
-        #expect(WaitStatus.rejected.isTerminal)
+        #expect(!WaitStatus.pending.isTerminal)
+        #expect(!WaitStatus.active.isTerminal)
+        #expect(!WaitStatus.finalReview.isTerminal)
+        #expect(WaitStatus.positive.isTerminal)
+        #expect(WaitStatus.negative.isTerminal)
     }
 
-    @Test func statusPipelineIndex() {
-        #expect(WaitStatus.submitted.pipelineIndex == 0)
-        #expect(WaitStatus.inReview.pipelineIndex == 1)
-        #expect(WaitStatus.awaiting.pipelineIndex == 2)
-        #expect(WaitStatus.accepted.pipelineIndex == nil)
-        #expect(WaitStatus.rejected.pipelineIndex == nil)
+    @Test func statusPositiveNegative() {
+        #expect(WaitStatus.positive.isPositive)
+        #expect(!WaitStatus.positive.isNegative)
+        #expect(WaitStatus.negative.isNegative)
+        #expect(!WaitStatus.negative.isPositive)
     }
 
-    @Test func statusNextStatus() {
-        #expect(WaitStatus.submitted.nextStatus == .inReview)
-        #expect(WaitStatus.inReview.nextStatus == .awaiting)
-        #expect(WaitStatus.awaiting.nextStatus == nil)
-        #expect(WaitStatus.accepted.nextStatus == nil)
-        #expect(WaitStatus.rejected.nextStatus == nil)
+    // MARK: - PipelineTemplate
+
+    @Test func templateHasEightCases() {
+        #expect(PipelineTemplate.allCases.count == 8)
     }
 
-    @Test func statusValidTransitions() {
-        #expect(WaitStatus.submitted.validTransitions == [.inReview, .accepted, .rejected])
-        #expect(WaitStatus.inReview.validTransitions == [.awaiting, .accepted, .rejected])
-        #expect(WaitStatus.awaiting.validTransitions == [.accepted, .rejected])
-        #expect(WaitStatus.accepted.validTransitions.isEmpty)
-        #expect(WaitStatus.rejected.validTransitions.isEmpty)
+    @Test func templateCategoryMapping() {
+        #expect(PipelineTemplate.jobApplication.category == .job)
+        #expect(PipelineTemplate.scholarship.category == .job)
+        #expect(PipelineTemplate.preOrder.category == .product)
+        #expect(PipelineTemplate.productWaitlist.category == .product)
+        #expect(PipelineTemplate.document.category == .admin)
+        #expect(PipelineTemplate.permit.category == .admin)
+        #expect(PipelineTemplate.eventRegistration.category == .event)
+        #expect(PipelineTemplate.eventWaitlist.category == .event)
     }
 
-    @Test func statusLabelsNotEmpty() {
-        for status in WaitStatus.allCases {
-            #expect(!status.label.isEmpty)
-            #expect(!status.shortLabel.isEmpty)
-            #expect(!status.systemImage.isEmpty)
+    @Test func templateStageCount() {
+        #expect(PipelineTemplate.jobApplication.stages.count == 3)
+        #expect(PipelineTemplate.scholarship.stages.count == 2)
+        #expect(PipelineTemplate.preOrder.stages.count == 3)
+        #expect(PipelineTemplate.productWaitlist.stages.count == 2)
+        #expect(PipelineTemplate.document.stages.count == 2)
+        #expect(PipelineTemplate.permit.stages.count == 3)
+        #expect(PipelineTemplate.eventRegistration.stages.count == 1)
+        #expect(PipelineTemplate.eventWaitlist.stages.count == 2)
+    }
+
+    @Test func templateNextStatus() {
+        let job = PipelineTemplate.jobApplication
+        #expect(job.nextStatus(after: .pending) == .active)
+        #expect(job.nextStatus(after: .active) == .finalReview)
+        #expect(job.nextStatus(after: .finalReview) == nil)
+
+        let doc = PipelineTemplate.document
+        #expect(doc.nextStatus(after: .pending) == .active)
+        #expect(doc.nextStatus(after: .active) == nil)
+
+        let reg = PipelineTemplate.eventRegistration
+        #expect(reg.nextStatus(after: .pending) == nil)
+    }
+
+    @Test func templateValidTransitions() {
+        let job = PipelineTemplate.jobApplication
+        #expect(job.validTransitions(from: .pending) == [.active, .positive, .negative])
+        #expect(job.validTransitions(from: .active) == [.finalReview, .positive, .negative])
+        #expect(job.validTransitions(from: .finalReview) == [.positive, .negative])
+        #expect(job.validTransitions(from: .positive).isEmpty)
+        #expect(job.validTransitions(from: .negative).isEmpty)
+
+        let reg = PipelineTemplate.eventRegistration
+        #expect(reg.validTransitions(from: .pending) == [.positive, .negative])
+    }
+
+    @Test func templatePipelineIndex() {
+        let job = PipelineTemplate.jobApplication
+        #expect(job.pipelineIndex(of: .pending) == 0)
+        #expect(job.pipelineIndex(of: .active) == 1)
+        #expect(job.pipelineIndex(of: .finalReview) == 2)
+        #expect(job.pipelineIndex(of: .positive) == nil)
+        #expect(job.pipelineIndex(of: .negative) == nil)
+    }
+
+    @Test func templateLabelsNotEmpty() {
+        for tmpl in PipelineTemplate.allCases {
+            for status in WaitStatus.allCases {
+                #expect(!tmpl.label(for: status).isEmpty)
+                #expect(!tmpl.shortLabel(for: status).isEmpty)
+                #expect(!tmpl.systemImage(for: status).isEmpty)
+            }
         }
+    }
+
+    @Test func templateFactoryReturnsCorrectTemplates() {
+        #expect(PipelineTemplate.templates(for: .job) == [.jobApplication, .scholarship])
+        #expect(PipelineTemplate.templates(for: .product) == [.preOrder, .productWaitlist])
+        #expect(PipelineTemplate.templates(for: .admin) == [.document, .permit])
+        #expect(PipelineTemplate.templates(for: .event) == [.eventRegistration, .eventWaitlist])
+    }
+
+    @Test func templateDefaultIsFirstForCategory() {
+        #expect(PipelineTemplate.defaultTemplate(for: .job) == .jobApplication)
+        #expect(PipelineTemplate.defaultTemplate(for: .product) == .preOrder)
+        #expect(PipelineTemplate.defaultTemplate(for: .admin) == .document)
+        #expect(PipelineTemplate.defaultTemplate(for: .event) == .eventRegistration)
     }
 
     // MARK: - WaitPriority

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1290">
+  <title>Awaitr — Dashboard</title>
+  <link rel="stylesheet" href="shared.css">
+  <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+  <style>
+    body { width: 1290px; height: 2796px; overflow: hidden; }
+  </style>
+</head>
+<body>
+  <div class="screenshot-page">
+    <div class="marketing-headline">
+      <h1>Track Everything<br>You're Waiting For</h1>
+    </div>
+
+    <div class="phone-frame">
+      <div class="phone-content">
+        <!-- Status Bar -->
+        <div class="status-bar">
+          <span class="time">9:41</span>
+          <div class="icons">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+          </div>
+        </div>
+
+        <!-- Nav Bar -->
+        <div class="nav-bar">
+          <div class="nav-bar-large-title">Awaitr</div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+          <div class="stat-card" style="border: 2px solid rgba(108,99,255,0.3);">
+            <div class="stat-emoji">💼</div>
+            <div class="stat-label" style="color: var(--job);">Jobs</div>
+            <div class="stat-number">3</div>
+            <div class="stat-sub">1 in review</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-emoji">📦</div>
+            <div class="stat-label" style="color: var(--product);">Products</div>
+            <div class="stat-number">2</div>
+            <div class="stat-sub">2 submitted</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-emoji">📋</div>
+            <div class="stat-label" style="color: var(--admin);">Admin</div>
+            <div class="stat-number">2</div>
+            <div class="stat-sub">1 awaiting</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-emoji">🎪</div>
+            <div class="stat-label" style="color: var(--event);">Events</div>
+            <div class="stat-number">1</div>
+            <div class="stat-sub">1 submitted</div>
+          </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+          <div class="filter-pill active active-job">All (8)</div>
+          <div class="filter-pill">💼 Jobs</div>
+          <div class="filter-pill">📦 Products</div>
+          <div class="filter-pill">📋 Admin</div>
+          <div class="filter-pill">🎪 Events</div>
+        </div>
+
+        <!-- Item Card 1: Job -->
+        <div class="item-card" data-category="job">
+          <div class="card-top">
+            <span class="badge badge-job">💼 Job</span>
+            <span class="priority-dot priority-medium"></span>
+            <span class="badge-status badge-inReview">In Review</span>
+          </div>
+          <div class="card-title">Google Summer Internship</div>
+          <div class="card-subtitle">Submitted 12 days ago</div>
+          <div class="mini-pipeline">
+            <div class="segment" style="background: var(--job);"></div>
+            <div class="segment" style="background: var(--job);"></div>
+            <div class="segment"></div>
+            <div class="segment"></div>
+          </div>
+        </div>
+
+        <!-- Item Card 2: Product -->
+        <div class="item-card" data-category="product">
+          <div class="card-top">
+            <span class="badge badge-product">📦 Product</span>
+            <span class="priority-dot priority-low"></span>
+            <span class="badge-status badge-submitted">Submitted</span>
+          </div>
+          <div class="card-title">AirPods Max Pre-order</div>
+          <div class="card-subtitle">Submitted 3 days ago</div>
+          <div class="mini-pipeline">
+            <div class="segment" style="background: var(--product);"></div>
+            <div class="segment"></div>
+            <div class="segment"></div>
+            <div class="segment"></div>
+          </div>
+        </div>
+
+        <!-- Item Card 3: Admin -->
+        <div class="item-card" data-category="admin">
+          <div class="card-top">
+            <span class="badge badge-admin">📋 Admin</span>
+            <span class="priority-dot priority-high"></span>
+            <span class="badge-status badge-awaiting">Awaiting</span>
+          </div>
+          <div class="card-title">Passport Renewal</div>
+          <div class="card-subtitle">Submitted 28 days ago</div>
+          <div class="mini-pipeline">
+            <div class="segment" style="background: var(--admin);"></div>
+            <div class="segment" style="background: var(--admin);"></div>
+            <div class="segment" style="background: var(--admin);"></div>
+            <div class="segment"></div>
+          </div>
+        </div>
+
+        <!-- FAB -->
+        <div class="fab">+</div>
+
+        <!-- Home Indicator -->
+        <div class="home-indicator"><div class="bar"></div></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

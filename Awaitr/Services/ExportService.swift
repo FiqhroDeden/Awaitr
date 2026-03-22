@@ -18,7 +18,7 @@ enum ExportService {
             [
                 escapeCSV(item.title),
                 escapeCSV(item.category.shortLabel),
-                escapeCSV(item.status.label),
+                escapeCSV(item.template.label(for: item.status)),
                 escapeCSV(item.priority.rawValue.capitalized),
                 formatDate(item.submittedAt),
                 item.expectedAt.map(formatDate) ?? "",

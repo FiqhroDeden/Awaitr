@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1290">
+  <title>Awaitr — Item Detail</title>
+  <link rel="stylesheet" href="shared.css">
+  <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+  <style>
+    body { width: 1290px; height: 2796px; overflow: hidden; }
+  </style>
+</head>
+<body>
+  <div class="screenshot-page">
+    <div class="marketing-headline">
+      <h1>See Your Progress<br>at a Glance</h1>
+    </div>
+
+    <div class="phone-frame">
+      <div class="phone-content">
+        <!-- Status Bar -->
+        <div class="status-bar">
+          <span class="time">9:41</span>
+          <div class="icons">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+          </div>
+        </div>
+
+        <!-- Nav Bar (inline with back) -->
+        <div class="nav-bar-inline">
+          <span class="back-chevron">‹</span>
+          <span class="nav-title">Google Summer Internship</span>
+        </div>
+
+        <!-- Meta Bar -->
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px;">
+          <span class="badge badge-job">💼 Job</span>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span class="priority-dot priority-medium"></span>
+            <span style="font-size: 22px; color: var(--muted); font-weight: 600;">Medium priority</span>
+          </div>
+        </div>
+
+        <!-- Pipeline Card -->
+        <div class="glass-card" data-category="job">
+          <div class="section-label">Status Pipeline</div>
+          <div class="pipeline">
+            <div class="pipeline-step">
+              <div class="pipeline-circle filled">1</div>
+              <div class="pipeline-label">Sub.</div>
+            </div>
+            <div class="pipeline-connector filled"></div>
+            <div class="pipeline-step">
+              <div class="pipeline-circle current">2</div>
+              <div class="pipeline-label">Review</div>
+            </div>
+            <div class="pipeline-connector empty"></div>
+            <div class="pipeline-step">
+              <div class="pipeline-circle empty">3</div>
+              <div class="pipeline-label">Await</div>
+            </div>
+            <div class="pipeline-connector empty"></div>
+            <div class="pipeline-step">
+              <div class="pipeline-circle empty">4</div>
+              <div class="pipeline-label">Decision</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Details Card -->
+        <div class="glass-card">
+          <div class="section-label">Details</div>
+          <div class="details-grid">
+            <div class="detail-cell">
+              <div class="detail-label">Submitted</div>
+              <div class="detail-value">Mar 10, 2026</div>
+            </div>
+            <div class="detail-cell">
+              <div class="detail-label">Days Waiting</div>
+              <div class="detail-value" style="color: var(--job);">12 days</div>
+            </div>
+            <div class="detail-cell">
+              <div class="detail-label">Expected By</div>
+              <div class="detail-value">Apr 15, 2026</div>
+            </div>
+            <div class="detail-cell">
+              <div class="detail-label">Follow-up</div>
+              <div class="detail-value" style="color: var(--admin);">Mar 25, 2026</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Timeline Card -->
+        <div class="glass-card">
+          <div class="section-label">Timeline</div>
+          <div class="timeline-entry">
+            <div class="timeline-dot" style="background: var(--job);"></div>
+            <div class="timeline-text">
+              <div class="timeline-status">Moved to In Review</div>
+              <div class="timeline-date">Mar 16, 2026 at 2:30 PM</div>
+            </div>
+          </div>
+          <div class="timeline-entry">
+            <div class="timeline-dot" style="background: var(--job); opacity: 0.5;"></div>
+            <div class="timeline-text">
+              <div class="timeline-status">Submitted</div>
+              <div class="timeline-date">Mar 10, 2026 at 9:15 AM</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <button class="btn btn-primary" style="margin-bottom: 16px;">Advance to Awaiting</button>
+        <div class="btn-row">
+          <button class="btn btn-outline" style="flex: 1;">Edit</button>
+          <button class="btn btn-destructive" style="width: 64px; flex: none; font-size: 32px;">🗑</button>
+        </div>
+
+        <!-- Home Indicator -->
+        <div class="home-indicator" style="margin-top: 24px;"><div class="bar"></div></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

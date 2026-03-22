@@ -10,103 +10,158 @@ import Foundation
 @MainActor
 struct StatusTransitionTests {
 
-    // MARK: - Advance Status
+    // MARK: - Job Application (3-stage pipeline)
 
-    @Test func advanceFromSubmitted() {
-        let item = WaitItem(title: "Test", category: .job)
+    @Test func advanceJobFromPending() {
+        let item = WaitItem(title: "Test", category: .job, template: .jobApplication)
         item.advanceStatus()
-        #expect(item.status == .inReview)
+        #expect(item.status == .active)
         #expect(item.statusHistory.count == 2)
     }
 
-    @Test func advanceFromInReview() {
-        let item = WaitItem(title: "Test", category: .job)
-        item.advanceStatus() // → inReview
-        item.advanceStatus() // → awaiting
-        #expect(item.status == .awaiting)
+    @Test func advanceJobFromActive() {
+        let item = WaitItem(title: "Test", category: .job, template: .jobApplication)
+        item.advanceStatus() // → active
+        item.advanceStatus() // → finalReview
+        #expect(item.status == .finalReview)
         #expect(item.statusHistory.count == 3)
     }
 
-    @Test func advanceFromAwaitingIsNoop() {
-        let item = WaitItem(title: "Test", category: .job)
-        item.advanceStatus() // → inReview
-        item.advanceStatus() // → awaiting
+    @Test func advanceJobFromFinalReviewIsNoop() {
+        let item = WaitItem(title: "Test", category: .job, template: .jobApplication)
+        item.advanceStatus() // → active
+        item.advanceStatus() // → finalReview
         item.advanceStatus() // noop
-        #expect(item.status == .awaiting)
+        #expect(item.status == .finalReview)
         #expect(item.statusHistory.count == 3)
     }
 
     @Test func advanceFromTerminalIsNoop() {
-        let item = WaitItem(title: "Test", category: .job)
-        item.transition(to: .accepted)
+        let item = WaitItem(title: "Test", category: .job, template: .jobApplication)
+        item.transition(to: .positive)
         let historyCount = item.statusHistory.count
         item.advanceStatus() // noop
-        #expect(item.status == .accepted)
+        #expect(item.status == .positive)
         #expect(item.statusHistory.count == historyCount)
+    }
+
+    // MARK: - Document (2-stage pipeline)
+
+    @Test func advanceDocFromPending() {
+        let item = WaitItem(title: "Test", category: .admin, template: .document)
+        item.advanceStatus() // → active
+        #expect(item.status == .active)
+    }
+
+    @Test func advanceDocFromActiveIsNoop() {
+        let item = WaitItem(title: "Test", category: .admin, template: .document)
+        item.advanceStatus() // → active
+        item.advanceStatus() // noop
+        #expect(item.status == .active)
+        #expect(item.statusHistory.count == 2)
+    }
+
+    @Test func docCannotReachFinalReview() {
+        let item = WaitItem(title: "Test", category: .admin, template: .document)
+        item.advanceStatus() // → active
+        item.transition(to: .finalReview) // invalid
+        #expect(item.status == .active)
+    }
+
+    // MARK: - Event Registration (1-stage pipeline)
+
+    @Test func eventRegistrationAdvanceIsNoop() {
+        let item = WaitItem(title: "Test", category: .event, template: .eventRegistration)
+        item.advanceStatus() // noop — only 1 stage
+        #expect(item.status == .pending)
+        #expect(item.statusHistory.count == 1)
+    }
+
+    @Test func eventRegistrationCanResolve() {
+        let item = WaitItem(title: "Test", category: .event, template: .eventRegistration)
+        item.transition(to: .positive)
+        #expect(item.status == .positive)
+        #expect(item.isArchived)
     }
 
     // MARK: - Direct Transitions
 
     @Test func transitionToValidStatus() {
-        let item = WaitItem(title: "Test", category: .job)
-        item.transition(to: .inReview)
-        #expect(item.status == .inReview)
+        let item = WaitItem(title: "Test", category: .job, template: .jobApplication)
+        item.transition(to: .active)
+        #expect(item.status == .active)
     }
 
     @Test func transitionToInvalidStatusIsNoop() {
-        let item = WaitItem(title: "Test", category: .job)
-        item.transition(to: .awaiting) // invalid: must go through inReview
-        #expect(item.status == .submitted)
+        let item = WaitItem(title: "Test", category: .job, template: .jobApplication)
+        item.transition(to: .finalReview) // invalid: must go through active
+        #expect(item.status == .pending)
     }
 
-    @Test func transitionToAcceptedAutoArchives() {
-        let item = WaitItem(title: "Test", category: .job)
-        item.transition(to: .accepted)
+    @Test func transitionToPositiveAutoArchives() {
+        let item = WaitItem(title: "Test", category: .job, template: .jobApplication)
+        item.transition(to: .positive)
         #expect(item.isArchived)
     }
 
-    @Test func transitionToRejectedAutoArchives() {
-        let item = WaitItem(title: "Test", category: .job)
-        item.transition(to: .rejected)
+    @Test func transitionToNegativeAutoArchives() {
+        let item = WaitItem(title: "Test", category: .job, template: .jobApplication)
+        item.transition(to: .negative)
         #expect(item.isArchived)
     }
 
     // MARK: - Reject Shortcut
 
-    @Test func rejectFromSubmitted() {
-        let item = WaitItem(title: "Test", category: .job)
+    @Test func rejectFromPending() {
+        let item = WaitItem(title: "Test", category: .job, template: .jobApplication)
         item.reject()
-        #expect(item.status == .rejected)
+        #expect(item.status == .negative)
         #expect(item.isArchived)
     }
 
-    @Test func rejectFromInReview() {
-        let item = WaitItem(title: "Test", category: .job)
-        item.advanceStatus() // → inReview
+    @Test func rejectFromActive() {
+        let item = WaitItem(title: "Test", category: .job, template: .jobApplication)
+        item.advanceStatus() // → active
         item.reject()
-        #expect(item.status == .rejected)
+        #expect(item.status == .negative)
     }
 
     // MARK: - Status History Logging
 
     @Test func statusHistoryLogsAllTransitions() {
-        let item = WaitItem(title: "Test", category: .job)
-        item.advanceStatus() // → inReview
-        item.advanceStatus() // → awaiting
-        item.transition(to: .accepted) // → accepted
+        let item = WaitItem(title: "Test", category: .job, template: .jobApplication)
+        item.advanceStatus() // → active
+        item.advanceStatus() // → finalReview
+        item.transition(to: .positive) // → positive
 
         #expect(item.statusHistory.count == 4)
-        #expect(item.statusHistory[0].status == .submitted)
-        #expect(item.statusHistory[1].status == .inReview)
-        #expect(item.statusHistory[2].status == .awaiting)
-        #expect(item.statusHistory[3].status == .accepted)
+        #expect(item.statusHistory[0].status == .pending)
+        #expect(item.statusHistory[1].status == .active)
+        #expect(item.statusHistory[2].status == .finalReview)
+        #expect(item.statusHistory[3].status == .positive)
     }
 
     @Test func updatedAtChangesOnTransition() {
-        let item = WaitItem(title: "Test", category: .job)
+        let item = WaitItem(title: "Test", category: .job, template: .jobApplication)
         let original = item.updatedAt
-        // Small delay to ensure time difference
         item.advanceStatus()
         #expect(item.updatedAt >= original)
+    }
+
+    // MARK: - Skip to Terminal from Any Stage
+
+    @Test func skipToPositiveFromPending() {
+        let item = WaitItem(title: "Test", category: .job, template: .jobApplication)
+        item.transition(to: .positive)
+        #expect(item.status == .positive)
+        #expect(item.isArchived)
+    }
+
+    @Test func skipToNegativeFromActive() {
+        let item = WaitItem(title: "Test", category: .product, template: .preOrder)
+        item.advanceStatus() // → active
+        item.transition(to: .negative)
+        #expect(item.status == .negative)
+        #expect(item.isArchived)
     }
 }

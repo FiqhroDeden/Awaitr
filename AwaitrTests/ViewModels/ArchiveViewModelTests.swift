@@ -21,9 +21,9 @@ struct ArchiveViewModelTests {
     @Test func totalAcceptedCounts() throws {
         let vm = try makeVM()
         let items = [
-            WaitItemFactory.make(status: .accepted, isArchived: true),
-            WaitItemFactory.make(status: .rejected, isArchived: true),
-            WaitItemFactory.make(status: .accepted, isArchived: true),
+            WaitItemFactory.make(status: .positive, isArchived: true),
+            WaitItemFactory.make(status: .negative, isArchived: true),
+            WaitItemFactory.make(status: .positive, isArchived: true),
         ]
         #expect(vm.totalAccepted(from: items) == 2)
     }
@@ -31,8 +31,8 @@ struct ArchiveViewModelTests {
     @Test func totalRejectedCounts() throws {
         let vm = try makeVM()
         let items = [
-            WaitItemFactory.make(status: .accepted, isArchived: true),
-            WaitItemFactory.make(status: .rejected, isArchived: true),
+            WaitItemFactory.make(status: .positive, isArchived: true),
+            WaitItemFactory.make(status: .negative, isArchived: true),
         ]
         #expect(vm.totalRejected(from: items) == 1)
     }
@@ -40,9 +40,9 @@ struct ArchiveViewModelTests {
     @Test func acceptanceRateCalculation() throws {
         let vm = try makeVM()
         let items = [
-            WaitItemFactory.make(status: .accepted, isArchived: true),
-            WaitItemFactory.make(status: .accepted, isArchived: true),
-            WaitItemFactory.make(status: .rejected, isArchived: true),
+            WaitItemFactory.make(status: .positive, isArchived: true),
+            WaitItemFactory.make(status: .positive, isArchived: true),
+            WaitItemFactory.make(status: .negative, isArchived: true),
         ]
         let rate = vm.acceptanceRate(from: items)
         #expect(abs(rate - 2.0/3.0) < 0.01)
@@ -57,7 +57,7 @@ struct ArchiveViewModelTests {
 
     @Test func unarchiveRestoresItem() throws {
         let vm = try makeVM()
-        let item = WaitItemFactory.make(status: .accepted, isArchived: true)
+        let item = WaitItemFactory.make(status: .positive, isArchived: true)
         vm.unarchiveItem(item)
         #expect(!item.isArchived)
     }

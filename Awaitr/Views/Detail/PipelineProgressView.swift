@@ -7,21 +7,28 @@ import SwiftUI
 
 struct PipelineProgressView: View {
     let status: WaitStatus
+    let template: PipelineTemplate
 
-    private let steps: [(label: String, index: Int)] = [
-        ("Sub.", 0),
-        ("Review", 1),
-        ("Await", 2),
-        ("Decision", 3)
-    ]
+    private var steps: [(label: String, index: Int)] {
+        var result = template.stages.enumerated().map { index, stage in
+            (label: template.shortLabel(for: stage), index: index)
+        }
+        result.append((label: "Decision", index: template.stages.count))
+        return result
+    }
 
     private var completedCount: Int {
-        switch status {
-        case .submitted: 1
-        case .inReview: 2
-        case .awaiting: 3
-        case .accepted, .rejected: 4
+        if status.isTerminal {
+            return steps.count
         }
+        guard let index = template.pipelineIndex(of: status) else {
+            return 0
+        }
+        return index + 1
+    }
+
+    private var categoryColor: Color {
+        Color(category: template.category)
     }
 
     var body: some View {
@@ -31,7 +38,7 @@ struct PipelineProgressView: View {
                     connector(completed: offset < completedCount)
                         .padding(.bottom, 18)
                 }
-                stepView(number: offset + 1, label: step.label, completed: offset < completedCount, isLast: offset == 3)
+                stepView(number: offset + 1, label: step.label, completed: offset < completedCount, isLast: offset == steps.count - 1)
             }
         }
     }
@@ -45,13 +52,13 @@ struct PipelineProgressView: View {
 
             Text(label)
                 .font(.system(size: 10, weight: .medium))
-                .foregroundStyle(completed ? Color(hex: "6C63FF") : Color(hex: "999999"))
+                .foregroundStyle(completed ? categoryColor : Color(hex: "999999"))
         }
     }
 
     @ViewBuilder
     private func circleContent(number: Int, completed: Bool, isLast: Bool) -> some View {
-        if isLast && status == .accepted {
+        if isLast && status.isPositive {
             Circle()
                 .fill(Color(hex: "3B6D11").opacity(0.15))
                 .overlay(
@@ -59,7 +66,7 @@ struct PipelineProgressView: View {
                         .font(.system(size: 12, weight: .bold))
                         .foregroundStyle(Color(hex: "3B6D11"))
                 )
-        } else if isLast && status == .rejected {
+        } else if isLast && status.isNegative {
             Circle()
                 .fill(Color(hex: "E24B4A").opacity(0.15))
                 .overlay(
@@ -69,11 +76,11 @@ struct PipelineProgressView: View {
                 )
         } else {
             Circle()
-                .fill(completed ? Color(hex: "6C63FF").opacity(0.15) : Color.black.opacity(0.05))
+                .fill(completed ? categoryColor.opacity(0.15) : Color.black.opacity(0.05))
                 .overlay(
                     Text("\(number)")
                         .font(.system(size: 13, weight: .semibold))
-                        .foregroundStyle(completed ? Color(hex: "6C63FF") : Color(hex: "999999"))
+                        .foregroundStyle(completed ? categoryColor : Color(hex: "999999"))
                 )
         }
     }
@@ -82,7 +89,7 @@ struct PipelineProgressView: View {
 
     private func connector(completed: Bool) -> some View {
         Rectangle()
-            .fill(completed ? Color(hex: "6C63FF").opacity(0.3) : Color.black.opacity(0.06))
+            .fill(completed ? categoryColor.opacity(0.3) : Color.black.opacity(0.06))
             .frame(height: 3)
             .frame(maxWidth: .infinity)
     }
@@ -90,11 +97,11 @@ struct PipelineProgressView: View {
 
 #Preview {
     VStack(spacing: 24) {
-        ForEach(WaitStatus.allCases) { status in
+        ForEach(PipelineTemplate.allCases) { tmpl in
             VStack(spacing: 4) {
-                Text(status.label)
+                Text(tmpl.label)
                     .font(.caption)
-                PipelineProgressView(status: status)
+                PipelineProgressView(status: tmpl.stages.first!, template: tmpl)
             }
         }
     }

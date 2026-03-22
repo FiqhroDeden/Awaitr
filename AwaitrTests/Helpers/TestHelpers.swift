@@ -23,7 +23,8 @@ enum WaitItemFactory {
     static func make(
         title: String = "Test Item",
         category: WaitCategory = .job,
-        status: WaitStatus = .submitted,
+        template: PipelineTemplate? = nil,
+        status: WaitStatus = .pending,
         submittedAt: Date = .now,
         priority: WaitPriority = .medium,
         notes: String = "",
@@ -31,9 +32,11 @@ enum WaitItemFactory {
         followUpAt: Date? = nil,
         isArchived: Bool = false
     ) -> WaitItem {
+        let resolvedTemplate = template ?? PipelineTemplate.defaultTemplate(for: category)
         let item = WaitItem(
             title: title,
             category: category,
+            template: resolvedTemplate,
             submittedAt: submittedAt,
             priority: priority,
             notes: notes,
@@ -41,24 +44,19 @@ enum WaitItemFactory {
             followUpAt: followUpAt
         )
         // Set status by transitioning through pipeline if needed
-        if status != .submitted {
-            for transition in transitionPath(to: status) {
-                item.transition(to: transition)
+        if status != .pending {
+            let stages = resolvedTemplate.stages
+            if let targetIndex = stages.firstIndex(of: status), targetIndex > 0 {
+                for i in 1...targetIndex {
+                    item.transition(to: stages[i])
+                }
+            } else if status.isTerminal {
+                item.transition(to: status)
             }
         }
         if isArchived && !status.isTerminal {
             item.archive()
         }
         return item
-    }
-
-    private static func transitionPath(to target: WaitStatus) -> [WaitStatus] {
-        switch target {
-        case .submitted: []
-        case .inReview: [.inReview]
-        case .awaiting: [.inReview, .awaiting]
-        case .accepted: [.inReview, .awaiting, .accepted]
-        case .rejected: [.rejected]
-        }
     }
 }

@@ -8,18 +8,18 @@ import SwiftUI
 struct ArchiveItemCard: View {
     let item: WaitItem
 
-    private var isAccepted: Bool { item.status == .accepted }
+    private var isPositive: Bool { item.status.isPositive }
 
     private var outcomeColor: Color {
-        isAccepted ? Color(hex: "3B6D11") : Color(hex: "E24B4A")
+        isPositive ? Color(hex: "3B6D11") : Color(hex: "E24B4A")
     }
 
     private var outcomeIcon: String {
-        isAccepted ? "checkmark" : "xmark"
+        isPositive ? "checkmark" : "xmark"
     }
 
     private var subtitle: String {
-        let statusLabel = item.status.label
+        let statusLabel = item.template.label(for: item.status)
         let date = item.updatedAt.shortFormatted
         let days = item.daysWaiting
         let dayText = days == 1 ? "1 day wait" : "\(days) days wait"

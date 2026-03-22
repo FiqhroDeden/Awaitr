@@ -71,22 +71,25 @@ struct SummaryStatsView: View {
     // MARK: - Helpers
 
     private func dominantStatusText(for categoryItems: [WaitItem]) -> String {
-        guard !categoryItems.isEmpty else { return "no items" }
+        guard let first = categoryItems.first else { return "no items" }
 
-        // Count items per non-submitted status
+        // Count items per non-pending status
         var statusCounts: [WaitStatus: Int] = [:]
+        var templateForStatus: [WaitStatus: PipelineTemplate] = [:]
         for item in categoryItems {
-            if item.status != .submitted {
+            if item.status != .pending {
                 statusCounts[item.status, default: 0] += 1
+                templateForStatus[item.status] = item.template
             }
         }
 
-        // If all submitted, show "submitted"
+        // If all pending, show template-aware label
         guard let (dominantStatus, count) = statusCounts.max(by: { $0.value < $1.value }) else {
-            return "submitted"
+            return first.template.shortLabel(for: .pending).lowercased()
         }
 
-        return "\(count) \(dominantStatus.shortLabel.lowercased())"
+        let tmpl = templateForStatus[dominantStatus] ?? first.template
+        return "\(count) \(tmpl.shortLabel(for: dominantStatus).lowercased())"
     }
 }
 

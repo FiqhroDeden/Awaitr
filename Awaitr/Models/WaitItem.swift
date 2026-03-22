@@ -12,6 +12,12 @@ final class WaitItem {
     var title: String
     var category: WaitCategory
     var status: WaitStatus
+    private var _template: PipelineTemplate?
+
+    var template: PipelineTemplate {
+        get { _template ?? PipelineTemplate.defaultTemplate(for: category) }
+        set { _template = newValue }
+    }
     var submittedAt: Date
     var expectedAt: Date?
     var followUpAt: Date?
@@ -26,6 +32,7 @@ final class WaitItem {
     init(
         title: String,
         category: WaitCategory,
+        template: PipelineTemplate? = nil,
         submittedAt: Date = .now,
         priority: WaitPriority = .medium,
         notes: String = "",
@@ -35,13 +42,14 @@ final class WaitItem {
         self.id = UUID()
         self.title = title
         self.category = category
-        self.status = .submitted
+        self._template = template ?? PipelineTemplate.defaultTemplate(for: category)
+        self.status = .pending
         self.submittedAt = submittedAt
         self.priority = priority
         self.notes = notes
         self.expectedAt = expectedAt
         self.followUpAt = followUpAt
-        self.statusHistory = [StatusEntry(status: .submitted, timestamp: .now)]
+        self.statusHistory = [StatusEntry(status: .pending, timestamp: .now)]
         self.createdAt = .now
         self.updatedAt = .now
         self.isArchived = false
@@ -75,13 +83,13 @@ final class WaitItem {
 
     /// Advance to the next pipeline status. No-op if terminal or at end of pipeline.
     func advanceStatus() {
-        guard let next = status.nextStatus else { return }
+        guard let next = template.nextStatus(after: status) else { return }
         transition(to: next)
     }
 
     /// Transition to a specific status if it's a valid transition.
     func transition(to newStatus: WaitStatus) {
-        guard status.validTransitions.contains(newStatus) else { return }
+        guard template.validTransitions(from: status).contains(newStatus) else { return }
         status = newStatus
         statusHistory.append(StatusEntry(status: newStatus, timestamp: .now))
         updatedAt = .now
@@ -91,9 +99,9 @@ final class WaitItem {
         }
     }
 
-    /// Reject the item (shortcut for transition to rejected).
+    /// Reject the item (shortcut for transition to negative).
     func reject() {
-        transition(to: .rejected)
+        transition(to: .negative)
     }
 
     /// Move item to archive.

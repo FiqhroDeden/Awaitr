@@ -73,8 +73,8 @@ struct ArchiveStatsView: View {
 
     private var legend: some View {
         VStack(alignment: .leading, spacing: 8) {
-            legendRow(color: Color(hex: "3B6D11"), label: "\(accepted) Accepted")
-            legendRow(color: Color(hex: "E24B4A"), label: "\(rejected) Rejected")
+            legendRow(color: Color(hex: "3B6D11"), label: "\(accepted) Successful")
+            legendRow(color: Color(hex: "E24B4A"), label: "\(rejected) Unsuccessful")
         }
     }
 

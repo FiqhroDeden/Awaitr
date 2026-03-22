@@ -206,10 +206,7 @@ struct SettingsView: View {
                 .foregroundStyle(Theme.TextColors.muted)
                 .padding(.top, 4)
 
-            Text("Made with patience in Ambon")
-                .font(.system(size: 11))
-                .foregroundStyle(Color(hex: "999999"))
-                .padding(.top, 8)
+
         }
         .frame(maxWidth: .infinity)
         .padding(16)
