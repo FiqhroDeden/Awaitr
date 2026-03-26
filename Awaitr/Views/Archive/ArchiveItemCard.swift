@@ -22,7 +22,7 @@ struct ArchiveItemCard: View {
         let statusLabel = item.template.label(for: item.status)
         let date = item.updatedAt.shortFormatted
         let days = item.daysWaiting
-        let dayText = days == 1 ? "1 day wait" : "\(days) days wait"
+        let dayText = days == 1 ? String(localized: "1 day wait") : String(localized: "\(days) days wait")
         return "\(statusLabel) \(date) — \(dayText)"
     }
 
@@ -35,13 +35,15 @@ struct ArchiveItemCard: View {
         }
         .padding(Theme.Spacing.md)
         .glassCard()
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(item.title), \(item.category.shortLabel), \(item.template.label(for: item.status))")
     }
 
     // MARK: - Outcome Circle
 
     private var outcomeCircle: some View {
         Image(systemName: outcomeIcon)
-            .font(.system(size: 12, weight: .bold))
+            .font(Theme.Typography.captionBold)
             .foregroundStyle(outcomeColor)
             .frame(width: 28, height: 28)
             .background(outcomeColor.opacity(0.12))
@@ -53,11 +55,11 @@ struct ArchiveItemCard: View {
     private var textContent: some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(item.title)
-                .font(.system(size: 14, weight: .semibold))
+                .font(Theme.Typography.buttonLabel)
                 .foregroundStyle(Theme.TextColors.dark)
                 .lineLimit(1)
             Text(subtitle)
-                .font(.system(size: 11))
+                .font(Theme.Typography.sectionLabel)
                 .foregroundStyle(Theme.TextColors.muted)
                 .lineLimit(1)
         }

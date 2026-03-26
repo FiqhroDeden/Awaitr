@@ -13,7 +13,7 @@ struct PipelineProgressView: View {
         var result = template.stages.enumerated().map { index, stage in
             (label: template.shortLabel(for: stage), index: index)
         }
-        result.append((label: "Decision", index: template.stages.count))
+        result.append((label: String(localized: "Decision"), index: template.stages.count))
         return result
     }
 
@@ -41,6 +41,8 @@ struct PipelineProgressView: View {
                 stepView(number: offset + 1, label: step.label, completed: offset < completedCount, isLast: offset == steps.count - 1)
             }
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Pipeline progress, step \(completedCount) of \(steps.count)")
     }
 
     // MARK: - Step Circle
@@ -51,9 +53,12 @@ struct PipelineProgressView: View {
                 .frame(width: 28, height: 28)
 
             Text(label)
-                .font(.system(size: 10, weight: .medium))
+                .font(Theme.Typography.smallBadge)
                 .foregroundStyle(completed ? categoryColor : Color(hex: "999999"))
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
         }
+        .frame(maxWidth: .infinity)
     }
 
     @ViewBuilder
@@ -63,7 +68,7 @@ struct PipelineProgressView: View {
                 .fill(Color(hex: "3B6D11").opacity(0.15))
                 .overlay(
                     Image(systemName: "checkmark")
-                        .font(.system(size: 12, weight: .bold))
+                        .font(Theme.Typography.captionBold)
                         .foregroundStyle(Color(hex: "3B6D11"))
                 )
         } else if isLast && status.isNegative {
@@ -71,7 +76,7 @@ struct PipelineProgressView: View {
                 .fill(Color(hex: "E24B4A").opacity(0.15))
                 .overlay(
                     Image(systemName: "xmark")
-                        .font(.system(size: 12, weight: .bold))
+                        .font(Theme.Typography.captionBold)
                         .foregroundStyle(Color(hex: "E24B4A"))
                 )
         } else {
@@ -79,7 +84,7 @@ struct PipelineProgressView: View {
                 .fill(completed ? categoryColor.opacity(0.15) : Color.black.opacity(0.05))
                 .overlay(
                     Text("\(number)")
-                        .font(.system(size: 13, weight: .semibold))
+                        .font(Theme.Typography.captionBold)
                         .foregroundStyle(completed ? categoryColor : Color(hex: "999999"))
                 )
         }

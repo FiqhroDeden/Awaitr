@@ -44,10 +44,10 @@ struct DashboardView: View {
     private var greeting: String {
         let hour = Calendar.current.component(.hour, from: .now)
         switch hour {
-        case 5..<12: return "Good morning"
-        case 12..<17: return "Good afternoon"
-        case 17..<21: return "Good evening"
-        default: return "Good night"
+        case 5..<12: return String(localized: "Good morning")
+        case 12..<17: return String(localized: "Good afternoon")
+        case 17..<21: return String(localized: "Good evening")
+        default: return String(localized: "Good night")
         }
     }
 
@@ -91,6 +91,7 @@ struct DashboardView: View {
                 }
             }
         }
+        .sensoryFeedback(.impact(weight: .light), trigger: showSearch)
         .task {
             if viewModel == nil {
                 viewModel = DashboardViewModel(modelContext: modelContext)
@@ -105,12 +106,13 @@ struct DashboardView: View {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(greeting)
-                        .font(.system(size: 14, weight: .medium, design: .rounded))
+                        .font(Theme.Typography.bodyMedium)
                         .foregroundStyle(Theme.TextColors.muted)
                     Text("My Waitlist")
-                        .font(.system(size: 28, weight: .bold, design: .rounded))
+                        .font(Theme.Typography.title)
                         .foregroundStyle(Theme.TextColors.dark)
                 }
+                .accessibilityElement(children: .combine)
                 Spacer()
                 searchButton
             }
@@ -132,23 +134,26 @@ struct DashboardView: View {
             }
         } label: {
             Image(systemName: showSearch ? "xmark" : "magnifyingglass")
-                .font(.system(size: 16, weight: .medium))
+                .font(Theme.Typography.cardTitle)
                 .foregroundStyle(Theme.TextColors.muted)
                 .frame(width: 40, height: 40)
                 .background(Color.black.opacity(0.04))
                 .clipShape(Circle())
         }
+        .accessibilityLabel(showSearch ? "Close search" : "Search items")
+        .accessibilityHint("Double tap to toggle search")
     }
 
     private var searchField: some View {
         HStack(spacing: 8) {
             Image(systemName: "magnifyingglass")
-                .font(.system(size: 14))
+                .font(Theme.Typography.bodyMedium)
                 .foregroundStyle(Theme.TextColors.muted)
             TextField("Search items...", text: searchTextBinding)
-                .font(.system(size: 15))
+                .font(Theme.Typography.searchField)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
+                .accessibilityLabel("Search items")
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 10)

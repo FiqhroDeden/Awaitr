@@ -50,7 +50,7 @@ struct OnboardingPageView<Content: View>: View {
         subtitle: "Your personal waitlist manager"
     ) {
         Image(systemName: "hourglass")
-            .font(.system(size: 80))
+            .font(Theme.Typography.largeIcon)
             .foregroundStyle(Color(hex: "6C63FF"))
     }
 }

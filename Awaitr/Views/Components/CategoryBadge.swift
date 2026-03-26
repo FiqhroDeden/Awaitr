@@ -10,7 +10,7 @@ struct CategoryBadge: View {
 
     var body: some View {
         Text(category.shortLabel.uppercased())
-            .font(.system(size: 10, weight: .bold))
+            .font(Theme.Typography.smallBadge)
             .foregroundStyle(.white)
             .padding(.horizontal, 6)
             .padding(.vertical, 2)

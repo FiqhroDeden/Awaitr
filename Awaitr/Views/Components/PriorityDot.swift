@@ -12,7 +12,7 @@ struct PriorityDot: View {
         Circle()
             .fill(priority.color)
             .frame(width: 8, height: 8)
-            .accessibilityLabel(Text(verbatim: "\(priority.rawValue.capitalized) priority"))
+            .accessibilityLabel(Text("\(priority.localizedName) priority"))
     }
 }
 
@@ -21,7 +21,7 @@ struct PriorityDot: View {
         ForEach(WaitPriority.allCases) { priority in
             HStack(spacing: 4) {
                 PriorityDot(priority: priority)
-                Text(priority.rawValue.capitalized)
+                Text(priority.localizedName)
                     .font(Theme.Typography.caption)
             }
         }

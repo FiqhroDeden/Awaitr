@@ -13,6 +13,7 @@ struct ItemDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var showDeleteConfirmation = false
     @State private var showEditSheet = false
+    @State private var statusChangeTrigger = 0
 
     private var template: PipelineTemplate { item.template }
 
@@ -30,6 +31,7 @@ struct ItemDetailView: View {
             }
             .padding(Theme.Spacing.lg)
         }
+        .sensoryFeedback(.warning, trigger: showDeleteConfirmation)
         .navigationTitle(item.title)
         .navigationBarTitleDisplayMode(.inline)
         .task {
@@ -60,10 +62,11 @@ struct ItemDetailView: View {
                 .foregroundStyle(Theme.TextColors.muted)
             Spacer()
             PriorityDot(priority: item.priority)
-            Text("\(item.priority.rawValue.capitalized) priority")
-                .font(.system(size: 13, weight: .medium))
+            Text("\(item.priority.localizedName) priority")
+                .font(Theme.Typography.caption)
                 .foregroundStyle(item.priority.color)
         }
+        .accessibilityElement(children: .combine)
     }
 
     // MARK: - Pipeline Card
@@ -97,20 +100,21 @@ struct ItemDetailView: View {
         return LazyVGrid(columns: columns, alignment: .leading, spacing: Theme.Spacing.md) {
             detailCell(label: "Submitted", value: item.submittedAt.shortFormatted, color: Theme.TextColors.dark)
             detailCell(label: "Days waiting", value: item.daysWaitingLabel, color: item.category.color)
-            detailCell(label: "Expected by", value: item.expectedAt?.shortFormatted ?? "Not set", color: Theme.TextColors.dark)
-            detailCell(label: "Follow-up", value: item.followUpAt?.shortFormatted ?? "Not set", color: Theme.CategoryColors.admin)
+            detailCell(label: "Expected by", value: item.expectedAt?.shortFormatted ?? String(localized: "Not set"), color: Theme.TextColors.dark)
+            detailCell(label: "Follow-up", value: item.followUpAt?.shortFormatted ?? String(localized: "Not set"), color: Theme.CategoryColors.admin)
         }
     }
 
-    private func detailCell(label: String, value: String, color: Color) -> some View {
+    private func detailCell(label: LocalizedStringKey, value: String, color: Color) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(label)
-                .font(.system(size: 11, weight: .medium))
+                .font(Theme.Typography.sectionLabel)
                 .foregroundStyle(Theme.TextColors.muted)
             Text(value)
-                .font(.system(size: 14, weight: .medium))
+                .font(Theme.Typography.bodyMedium)
                 .foregroundStyle(color)
         }
+        .accessibilityElement(children: .combine)
     }
 
     // MARK: - Timeline Card
@@ -136,7 +140,7 @@ struct ItemDetailView: View {
                 VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                     sectionLabel("NOTES")
                     Text(item.notes)
-                        .font(.system(size: 13))
+                        .font(Theme.Typography.caption)
                         .foregroundStyle(Color(hex: "3D3D5C"))
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
@@ -152,10 +156,12 @@ struct ItemDetailView: View {
                 if let next = template.nextStatus(after: item.status) {
                     // Non-terminal with next stage
                     primaryButton("Advance to \(template.shortLabel(for: next))") {
+                        statusChangeTrigger += 1
                         withAnimation(Theme.Animations.springMedium) {
                             viewModel?.advanceStatus()
                         }
                     }
+                    .accessibilityHint("Moves this item to the next pipeline stage")
                     editButton
                     deleteIconButton
                 } else {
@@ -171,12 +177,13 @@ struct ItemDetailView: View {
                 deleteIconButton
             }
         }
+        .sensoryFeedback(.success, trigger: statusChangeTrigger)
     }
 
-    private func primaryButton(_ label: String, action: @escaping () -> Void) -> some View {
+    private func primaryButton(_ label: LocalizedStringKey, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Text(label)
-                .font(.system(size: 14, weight: .semibold))
+                .font(Theme.Typography.buttonLabel)
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 12)
@@ -187,64 +194,71 @@ struct ItemDetailView: View {
 
     private var acceptButton: some View {
         Button {
+            statusChangeTrigger += 1
             withAnimation(Theme.Animations.springMedium) {
                 viewModel?.acceptItem()
             }
         } label: {
             Text(template.shortLabel(for: .positive))
-                .font(.system(size: 14, weight: .semibold))
+                .font(Theme.Typography.buttonLabel)
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 12)
                 .background(Color(hex: "3B6D11"))
                 .clipShape(RoundedRectangle(cornerRadius: 12))
         }
+        .accessibilityHint("Marks this item as successful")
     }
 
     private var rejectButton: some View {
         Button {
+            statusChangeTrigger += 1
             withAnimation(Theme.Animations.springMedium) {
                 viewModel?.rejectItem()
             }
         } label: {
             Text(template.shortLabel(for: .negative))
-                .font(.system(size: 14, weight: .semibold))
+                .font(Theme.Typography.buttonLabel)
                 .foregroundStyle(Color(hex: "E24B4A"))
                 .padding(.vertical, 12)
                 .padding(.horizontal, 16)
                 .background(Color(hex: "E24B4A").opacity(0.1))
                 .clipShape(RoundedRectangle(cornerRadius: 12))
         }
+        .accessibilityHint("Marks this item as unsuccessful")
     }
 
     private var editButton: some View {
         Button { showEditSheet = true } label: {
             Text("Edit")
-                .font(.system(size: 14, weight: .semibold))
+                .font(Theme.Typography.buttonLabel)
                 .foregroundStyle(item.category.color)
                 .padding(.vertical, 12)
                 .padding(.horizontal, 16)
                 .background(item.category.color.opacity(0.1))
                 .clipShape(RoundedRectangle(cornerRadius: 12))
         }
+        .accessibilityHint("Edit this item")
     }
 
     private var deleteIconButton: some View {
         Button { showDeleteConfirmation = true } label: {
             Image(systemName: "trash.fill")
-                .font(.system(size: 14))
+                .font(Theme.Typography.bodyMedium)
                 .foregroundStyle(Color(hex: "E24B4A"))
                 .frame(width: 44, height: 44)
                 .background(Color(hex: "E24B4A").opacity(0.1))
                 .clipShape(RoundedRectangle(cornerRadius: 12))
         }
+        .accessibilityLabel("Delete item")
+        .accessibilityHint("Shows delete confirmation")
     }
 
     // MARK: - Section Label
 
-    private func sectionLabel(_ text: String) -> some View {
+    private func sectionLabel(_ text: LocalizedStringKey) -> some View {
         Text(text)
-            .font(.system(size: 11, weight: .semibold))
+            .font(Theme.Typography.sectionLabel)
             .foregroundStyle(Theme.TextColors.muted)
             .tracking(0.8)
     }

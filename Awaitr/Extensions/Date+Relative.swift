@@ -15,11 +15,11 @@ extension Date {
         let days = calendar.dateComponents([.day], from: startOfToday, to: startOfDate).day ?? 0
 
         switch days {
-        case 0: return "Today"
-        case -1: return "Yesterday"
-        case ..<(-1): return "\(abs(days)) days ago"
-        case 1: return "Tomorrow"
-        default: return "In \(days) days"
+        case 0: return String(localized: "Today")
+        case -1: return String(localized: "Yesterday")
+        case ..<(-1): return String(localized: "\(abs(days)) days ago")
+        case 1: return String(localized: "Tomorrow")
+        default: return String(localized: "In \(days) days")
         }
     }
 

@@ -44,15 +44,16 @@ struct StatusTimelineView: View {
             // Text
             VStack(alignment: .leading, spacing: 2) {
                 Text(template.label(for: entry.status))
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(Theme.Typography.captionBold)
                     .foregroundStyle(Theme.TextColors.dark)
 
                 Text("\(entry.timestamp.shortFormatted) — \(entry.timestamp.relativeString)")
-                    .font(.system(size: 12))
+                    .font(Theme.Typography.smallLabel)
                     .foregroundStyle(Theme.TextColors.muted)
             }
             .padding(.bottom, isLast ? 0 : 8)
         }
+        .accessibilityElement(children: .combine)
     }
 }
 

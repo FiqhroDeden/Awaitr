@@ -13,7 +13,7 @@ struct CategoryFilterBar: View {
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: Theme.Spacing.sm) {
-                filterPill(label: "All (\(totalCount))", category: nil)
+                filterPill(label: String(localized: "All (\(totalCount))"), category: nil)
 
                 ForEach(WaitCategory.allCases) { category in
                     filterPill(
@@ -24,6 +24,7 @@ struct CategoryFilterBar: View {
             }
             .padding(.horizontal)
         }
+        .sensoryFeedback(.selection, trigger: selectedCategory)
     }
 
     // MARK: - Filter Pill
@@ -56,6 +57,8 @@ struct CategoryFilterBar: View {
                     selectedCategory = category
                 }
             }
+            .accessibilityAddTraits(.isButton)
+            .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 }
 

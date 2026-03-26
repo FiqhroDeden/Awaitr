@@ -12,21 +12,29 @@ struct EmptyStateView: View {
     var actionLabel: LocalizedStringKey?
     var action: (() -> Void)?
 
+    @State private var hasAppeared = false
+
     var body: some View {
         VStack(spacing: Theme.Spacing.lg) {
             Spacer().frame(height: 60)
 
             Image(systemName: icon)
-                .font(.system(size: 48))
+                .font(Theme.Typography.largeIcon)
                 .foregroundStyle(Theme.TextColors.muted)
+                .opacity(hasAppeared ? 1 : 0)
+                .offset(y: hasAppeared ? 0 : 20)
 
             Text(heading)
                 .font(Theme.Typography.sectionHeader)
                 .foregroundStyle(Theme.TextColors.dark)
+                .opacity(hasAppeared ? 1 : 0)
+                .offset(y: hasAppeared ? 0 : 20)
 
             Text(subheading)
                 .font(Theme.Typography.body)
                 .foregroundStyle(Theme.TextColors.muted)
+                .opacity(hasAppeared ? 1 : 0)
+                .offset(y: hasAppeared ? 0 : 20)
 
             if let actionLabel, let action {
                 Button(action: action) {
@@ -34,10 +42,19 @@ struct EmptyStateView: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(Theme.CategoryColors.job)
+                .opacity(hasAppeared ? 1 : 0)
+                .offset(y: hasAppeared ? 0 : 20)
             }
         }
         .frame(maxWidth: .infinity)
         .padding()
+        .accessibilityElement(children: .combine)
+        .task {
+            guard !hasAppeared else { return }
+            withAnimation(Theme.Animations.springGentle) {
+                hasAppeared = true
+            }
+        }
     }
 }
 

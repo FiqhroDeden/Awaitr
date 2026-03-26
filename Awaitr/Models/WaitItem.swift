@@ -73,9 +73,9 @@ final class WaitItem {
     var daysWaitingLabel: String {
         let days = daysWaiting
         switch days {
-        case 0: return "Today"
-        case 1: return "1 day"
-        default: return "\(days) days"
+        case 0: return String(localized: "Today")
+        case 1: return String(localized: "1 day")
+        default: return String(localized: "\(days) days")
         }
     }
 

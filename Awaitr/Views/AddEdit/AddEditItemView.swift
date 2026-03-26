@@ -11,6 +11,7 @@ struct AddEditItemView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @State private var expandedDateField: DateField?
+    @State private var saveTrigger = 0
 
     let item: WaitItem?
 
@@ -41,6 +42,7 @@ struct AddEditItemView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
+                        saveTrigger += 1
                         Task {
                             await viewModel?.save()
                             dismiss()
@@ -53,6 +55,7 @@ struct AddEditItemView: View {
                 }
             }
         }
+        .sensoryFeedback(.success, trigger: saveTrigger)
         .task {
             if viewModel == nil {
                 if let item {
@@ -95,10 +98,12 @@ struct AddEditItemView: View {
                     ))
                     .textInputAutocapitalization(.sentences)
                     .font(Theme.Typography.body)
+                    .accessibilityLabel("Item title")
 
                     Text("\(vm.titleCharacterCount)/80")
                         .font(Theme.Typography.caption)
                         .foregroundStyle(vm.titleCharacterCount > 80 ? .red : Theme.TextColors.muted)
+                        .accessibilityHidden(true)
                 }
                 Divider()
             }
@@ -117,6 +122,7 @@ struct AddEditItemView: View {
                 ))
             }
         }
+        .sensoryFeedback(.selection, trigger: vm.category)
     }
 
     // MARK: - Template Card
@@ -142,9 +148,9 @@ struct AddEditItemView: View {
                 } label: {
                     HStack(spacing: 6) {
                         Image(systemName: tmpl.icon)
-                            .font(.system(size: 12))
+                            .font(Theme.Typography.smallLabel)
                         Text(tmpl.label)
-                            .font(.system(size: 13, weight: .medium))
+                            .font(Theme.Typography.caption)
                     }
                     .foregroundStyle(isSelected ? Color(category: vm.category) : Theme.TextColors.muted)
                     .frame(maxWidth: .infinity)
@@ -162,6 +168,8 @@ struct AddEditItemView: View {
                     )
                 }
                 .buttonStyle(.plain)
+                .accessibilityAddTraits(isSelected ? .isSelected : [])
+                .accessibilityHint("Double tap to select this pipeline type")
             }
         }
     }
@@ -247,17 +255,18 @@ struct AddEditItemView: View {
         } label: {
             HStack {
                 Text(label)
-                    .font(.system(size: 14, weight: .medium))
+                    .font(Theme.Typography.bodyMedium)
                     .foregroundStyle(Theme.TextColors.dark)
                 Spacer()
-                Text(value ?? "Set date")
-                    .font(.system(size: 14))
+                Text(value ?? String(localized: "Set date"))
+                    .font(Theme.Typography.bodyMedium)
                     .foregroundStyle(isSet ? Theme.CategoryColors.job : Color(hex: "999999"))
             }
             .padding(.vertical, 6)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .accessibilityHint("Double tap to expand date picker")
     }
 
     private func followUpDatePicker(_ vm: AddEditViewModel) -> some View {
@@ -282,7 +291,7 @@ struct AddEditItemView: View {
                         expandedDateField = nil
                     }
                 }
-                .font(.system(size: 13, weight: .medium))
+                .font(Theme.Typography.caption)
                 .foregroundStyle(.red)
             }
         }
@@ -296,7 +305,7 @@ struct AddEditItemView: View {
     }
 
     private func followUpDisplay(_ date: Date?) -> String {
-        guard let date else { return "Set date" }
+        guard let date else { return String(localized: "Set date") }
         return date.formatted(.dateTime.month(.abbreviated).day().hour().minute())
     }
 
@@ -317,7 +326,7 @@ struct AddEditItemView: View {
 
             if isEnabled {
                 Button("Clear") { onClear() }
-                    .font(.system(size: 13, weight: .medium))
+                    .font(Theme.Typography.caption)
                     .foregroundStyle(.red)
             }
         }
@@ -333,6 +342,7 @@ struct AddEditItemView: View {
                 prioritySelector(vm)
             }
         }
+        .sensoryFeedback(.selection, trigger: vm.priority)
     }
 
     private func prioritySelector(_ vm: AddEditViewModel) -> some View {
@@ -347,7 +357,7 @@ struct AddEditItemView: View {
                     HStack(spacing: 4) {
                         PriorityDot(priority: p)
                         Text(p.rawValue.capitalized)
-                            .font(.system(size: 13, weight: .medium))
+                            .font(Theme.Typography.caption)
                             .foregroundStyle(isSelected ? p.color : Theme.TextColors.muted)
                     }
                     .frame(maxWidth: .infinity)
@@ -365,6 +375,7 @@ struct AddEditItemView: View {
                     )
                 }
                 .buttonStyle(.plain)
+                .accessibilityAddTraits(isSelected ? .isSelected : [])
             }
         }
     }
@@ -405,9 +416,9 @@ struct AddEditItemView: View {
 
     // MARK: - Section Label
 
-    private func sectionLabel(_ text: String) -> some View {
+    private func sectionLabel(_ text: LocalizedStringKey) -> some View {
         Text(text)
-            .font(.system(size: 11, weight: .semibold))
+            .font(Theme.Typography.sectionLabel)
             .foregroundStyle(Theme.TextColors.muted)
             .tracking(0.8)
     }

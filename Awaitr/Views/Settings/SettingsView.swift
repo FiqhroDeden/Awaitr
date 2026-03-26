@@ -116,6 +116,7 @@ struct SettingsView: View {
                 Toggle("", isOn: notificationsBinding)
                     .tint(Theme.CategoryColors.job)
                     .labelsHidden()
+                    .accessibilityHint("Enables or disables follow-up reminders")
             }
 
             Divider()
@@ -126,11 +127,12 @@ struct SettingsView: View {
 
             SettingsRow(icon: "doc.text.fill", iconColor: Theme.CategoryColors.event, label: "Export CSV") {
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 12, weight: .semibold))
+                    .font(Theme.Typography.captionBold)
                     .foregroundStyle(Theme.TextColors.muted)
             }
             .contentShape(Rectangle())
             .onTapGesture { exportCSV() }
+            .accessibilityAddTraits(.isButton)
         }
         .padding(.vertical, 4)
         .padding(.horizontal, 16)
@@ -141,7 +143,7 @@ struct SettingsView: View {
         VStack(spacing: 0) {
             SettingsRow(icon: "clock.fill", iconColor: Theme.CategoryColors.admin, label: "Default reminder") {
                 Text(formattedReminderTime)
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(Theme.Typography.captionBold)
                     .foregroundStyle(Theme.CategoryColors.job)
             }
             .contentShape(Rectangle())
@@ -165,7 +167,7 @@ struct SettingsView: View {
     }
 
     private var formattedReminderTime: String {
-        guard let viewModel else { return "9:00 AM" }
+        guard let viewModel else { return String(localized: "9:00 AM") }
         let formatter = DateFormatter()
         formatter.timeStyle = .short
         return formatter.string(from: viewModel.defaultReminderTime)
@@ -182,11 +184,13 @@ struct SettingsView: View {
                 labelColor: Theme.CategoryColors.product
             ) {
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 12, weight: .semibold))
+                    .font(Theme.Typography.captionBold)
                     .foregroundStyle(Theme.TextColors.muted)
             }
             .contentShape(Rectangle())
             .onTapGesture { viewModel?.requestClearData() }
+            .accessibilityAddTraits(.isButton)
+            .accessibilityHint("Permanently deletes all items")
         }
         .padding(.vertical, 4)
         .padding(.horizontal, 16)
@@ -198,11 +202,11 @@ struct SettingsView: View {
     private var aboutCard: some View {
         VStack(spacing: 0) {
             Text("Awaitr")
-                .font(.system(size: 18, weight: .bold, design: .rounded))
+                .font(Theme.Typography.sectionHeader)
                 .foregroundStyle(Theme.CategoryColors.job)
 
             Text("Version 1.0.0")
-                .font(.system(size: 12))
+                .font(Theme.Typography.smallLabel)
                 .foregroundStyle(Theme.TextColors.muted)
                 .padding(.top, 4)
 

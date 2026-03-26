@@ -45,8 +45,8 @@ enum NotificationService {
         let daysWaiting = Calendar.current.dateComponents([.day], from: submittedAt, to: date).day ?? 0
 
         let content = UNMutableNotificationContent()
-        content.title = "Time to follow up!"
-        content.body = "Check in on: \(title) — it's been \(daysWaiting) days since submission."
+        content.title = String(localized: "Time to follow up!")
+        content.body = String(localized: "Check in on: \(title) — it's been \(daysWaiting) days since submission.")
         content.sound = .default
         content.categoryIdentifier = "FOLLOW_UP"
         content.userInfo = ["itemId": itemId.uuidString]
@@ -106,12 +106,12 @@ enum NotificationService {
     static func registerCategories() {
         let openAction = UNNotificationAction(
             identifier: "OPEN_ACTION",
-            title: "Open",
+            title: String(localized: "Open"),
             options: [.foreground]
         )
         let snoozeAction = UNNotificationAction(
             identifier: "SNOOZE_ACTION",
-            title: "Snooze 1 Hour",
+            title: String(localized: "Snooze 1 Hour"),
             options: []
         )
 

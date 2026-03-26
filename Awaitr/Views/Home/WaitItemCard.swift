@@ -19,6 +19,8 @@ struct WaitItemCard: View {
                 MiniPipelineBar(status: item.status, template: template)
             }
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(item.title), \(item.category.shortLabel), \(item.priority.localizedName) priority")
     }
 
     // MARK: - Top Badges Row
@@ -53,9 +55,9 @@ struct WaitItemCard: View {
     private var daysLabel: String {
         let days = item.daysWaiting
         switch days {
-        case 0: return "Submitted today"
-        case 1: return "Submitted 1 day ago"
-        default: return "Submitted \(days) days ago"
+        case 0: return String(localized: "Submitted today")
+        case 1: return String(localized: "Submitted 1 day ago")
+        default: return String(localized: "Submitted \(days) days ago")
         }
     }
 }

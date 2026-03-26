@@ -9,6 +9,7 @@ import SwiftData
 struct ArchiveView: View {
     @Query(filter: WaitItem.archivedPredicate) private var archivedItems: [WaitItem]
     @State private var viewModel: ArchiveViewModel?
+    @State private var unarchiveTrigger = 0
     @Environment(\.modelContext) private var modelContext
 
     var body: some View {
@@ -37,6 +38,7 @@ struct ArchiveView: View {
             monthSections
         }
         .listStyle(.plain)
+        .sensoryFeedback(.success, trigger: unarchiveTrigger)
         .navigationDestination(for: UUID.self) { itemId in
             if let item = archivedItems.first(where: { $0.id == itemId }) {
                 ItemDetailView(item: item)
@@ -72,6 +74,7 @@ struct ArchiveView: View {
                     .listRowInsets(EdgeInsets(top: 2, leading: Theme.Spacing.lg, bottom: 2, trailing: Theme.Spacing.lg))
                     .swipeActions(edge: .trailing) {
                         Button {
+                            unarchiveTrigger += 1
                             withAnimation(.easeInOut(duration: 0.3)) {
                                 viewModel?.unarchiveItem(item)
                             }
@@ -83,7 +86,7 @@ struct ArchiveView: View {
                 }
             } header: {
                 Text(group.key.uppercased())
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(Theme.Typography.captionBold)
                     .foregroundStyle(Theme.TextColors.muted)
                     .tracking(0.5)
             }
@@ -96,12 +99,13 @@ struct ArchiveView: View {
         VStack(spacing: Theme.Spacing.lg) {
             Spacer().frame(height: 80)
             Image(systemName: "archivebox")
-                .font(.system(size: 48))
+                .font(Theme.Typography.largeIcon)
                 .foregroundStyle(Theme.TextColors.muted)
             Text("No archived items yet")
                 .font(Theme.Typography.sectionHeader)
                 .foregroundStyle(Theme.TextColors.dark)
         }
         .frame(maxWidth: .infinity)
+        .accessibilityElement(children: .combine)
     }
 }

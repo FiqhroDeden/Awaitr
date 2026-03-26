@@ -21,6 +21,7 @@ struct SummaryStatsView: View {
             }
         }
         .padding(.horizontal)
+        .sensoryFeedback(.selection, trigger: selectedCategory)
     }
 
     // MARK: - Stat Cell
@@ -35,9 +36,9 @@ struct SummaryStatsView: View {
                 // Top row: emoji + label
                 HStack(spacing: 4) {
                     Text(category.emoji)
-                        .font(.system(size: 14))
+                        .font(Theme.Typography.bodyMedium)
                     Text(category.shortLabel.uppercased())
-                        .font(.system(size: 11, weight: .bold, design: .rounded))
+                        .font(Theme.Typography.statNumber)
                         .foregroundStyle(category.color)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -71,7 +72,7 @@ struct SummaryStatsView: View {
     // MARK: - Helpers
 
     private func dominantStatusText(for categoryItems: [WaitItem]) -> String {
-        guard let first = categoryItems.first else { return "no items" }
+        guard let first = categoryItems.first else { return String(localized: "no items") }
 
         // Count items per non-pending status
         var statusCounts: [WaitStatus: Int] = [:]

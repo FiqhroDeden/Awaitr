@@ -39,14 +39,14 @@ enum PipelineTemplate: String, Codable, CaseIterable, Identifiable, Sendable {
 
     var label: String {
         switch self {
-        case .jobApplication: "Job Application"
-        case .scholarship: "Scholarship"
-        case .preOrder: "Pre-order"
-        case .productWaitlist: "Product Waitlist"
-        case .document: "Document"
-        case .permit: "Permit / License"
-        case .eventRegistration: "Registration"
-        case .eventWaitlist: "Event Waitlist"
+        case .jobApplication: String(localized: "Job Application")
+        case .scholarship: String(localized: "Scholarship")
+        case .preOrder: String(localized: "Pre-order")
+        case .productWaitlist: String(localized: "Product Waitlist")
+        case .document: String(localized: "Document")
+        case .permit: String(localized: "Permit / License")
+        case .eventRegistration: String(localized: "Registration")
+        case .eventWaitlist: String(localized: "Event Waitlist")
         }
     }
 
@@ -90,67 +90,67 @@ enum PipelineTemplate: String, Codable, CaseIterable, Identifiable, Sendable {
         switch self {
         case .jobApplication:
             switch status {
-            case .pending: "Applied"
-            case .active: "Interviewing"
-            case .finalReview: "Offer Pending"
-            case .positive: "Hired"
-            case .negative: "Rejected"
+            case .pending: String(localized: "Applied")
+            case .active: String(localized: "Interviewing")
+            case .finalReview: String(localized: "Offer Pending")
+            case .positive: String(localized: "Hired")
+            case .negative: String(localized: "Rejected")
             }
         case .scholarship:
             switch status {
-            case .pending: "Applied"
-            case .active: "Under Review"
-            case .finalReview: "Under Review"
-            case .positive: "Awarded"
-            case .negative: "Not Awarded"
+            case .pending: String(localized: "Applied")
+            case .active: String(localized: "Under Review")
+            case .finalReview: String(localized: "Under Review")
+            case .positive: String(localized: "Awarded")
+            case .negative: String(localized: "Not Awarded")
             }
         case .preOrder:
             switch status {
-            case .pending: "Pre-ordered"
-            case .active: "Processing"
-            case .finalReview: "Shipped"
-            case .positive: "Delivered"
-            case .negative: "Cancelled"
+            case .pending: String(localized: "Pre-ordered")
+            case .active: String(localized: "Processing")
+            case .finalReview: String(localized: "Shipped")
+            case .positive: String(localized: "Delivered")
+            case .negative: String(localized: "Cancelled")
             }
         case .productWaitlist:
             switch status {
-            case .pending: "Waitlisted"
-            case .active: "Available"
-            case .finalReview: "Available"
-            case .positive: "Purchased"
-            case .negative: "Passed"
+            case .pending: String(localized: "Waitlisted")
+            case .active: String(localized: "Available")
+            case .finalReview: String(localized: "Available")
+            case .positive: String(localized: "Purchased")
+            case .negative: String(localized: "Passed")
             }
         case .document:
             switch status {
-            case .pending: "Filed"
-            case .active: "Processing"
-            case .finalReview: "Processing"
-            case .positive: "Ready"
-            case .negative: "Denied"
+            case .pending: String(localized: "Filed")
+            case .active: String(localized: "Processing")
+            case .finalReview: String(localized: "Processing")
+            case .positive: String(localized: "Ready")
+            case .negative: String(localized: "Denied")
             }
         case .permit:
             switch status {
-            case .pending: "Applied"
-            case .active: "Under Review"
-            case .finalReview: "Inspection"
-            case .positive: "Approved"
-            case .negative: "Denied"
+            case .pending: String(localized: "Applied")
+            case .active: String(localized: "Under Review")
+            case .finalReview: String(localized: "Inspection")
+            case .positive: String(localized: "Approved")
+            case .negative: String(localized: "Denied")
             }
         case .eventRegistration:
             switch status {
-            case .pending: "Registered"
-            case .active: "Registered"
-            case .finalReview: "Registered"
-            case .positive: "Confirmed"
-            case .negative: "Full"
+            case .pending: String(localized: "Registered")
+            case .active: String(localized: "Registered")
+            case .finalReview: String(localized: "Registered")
+            case .positive: String(localized: "Confirmed")
+            case .negative: String(localized: "Full")
             }
         case .eventWaitlist:
             switch status {
-            case .pending: "Waitlisted"
-            case .active: "Spot Opened"
-            case .finalReview: "Spot Opened"
-            case .positive: "Confirmed"
-            case .negative: "Expired"
+            case .pending: String(localized: "Waitlisted")
+            case .active: String(localized: "Spot Opened")
+            case .finalReview: String(localized: "Spot Opened")
+            case .positive: String(localized: "Confirmed")
+            case .negative: String(localized: "Expired")
             }
         }
     }
@@ -159,67 +159,67 @@ enum PipelineTemplate: String, Codable, CaseIterable, Identifiable, Sendable {
         switch self {
         case .jobApplication:
             switch status {
-            case .pending: "Applied"
-            case .active: "Interview"
-            case .finalReview: "Offer"
-            case .positive: "Hired"
-            case .negative: "Rejected"
+            case .pending: String(localized: "Applied")
+            case .active: String(localized: "Interview")
+            case .finalReview: String(localized: "Offer")
+            case .positive: String(localized: "Hired")
+            case .negative: String(localized: "Rejected")
             }
         case .scholarship:
             switch status {
-            case .pending: "Applied"
-            case .active: "Review"
-            case .finalReview: "Review"
-            case .positive: "Awarded"
-            case .negative: "Not Awarded"
+            case .pending: String(localized: "Applied")
+            case .active: String(localized: "Review")
+            case .finalReview: String(localized: "Review")
+            case .positive: String(localized: "Awarded")
+            case .negative: String(localized: "Not Awarded")
             }
         case .preOrder:
             switch status {
-            case .pending: "Ordered"
-            case .active: "Processing"
-            case .finalReview: "Shipped"
-            case .positive: "Delivered"
-            case .negative: "Cancelled"
+            case .pending: String(localized: "Ordered")
+            case .active: String(localized: "Processing")
+            case .finalReview: String(localized: "Shipped")
+            case .positive: String(localized: "Delivered")
+            case .negative: String(localized: "Cancelled")
             }
         case .productWaitlist:
             switch status {
-            case .pending: "Waitlisted"
-            case .active: "Available"
-            case .finalReview: "Available"
-            case .positive: "Purchased"
-            case .negative: "Passed"
+            case .pending: String(localized: "Waitlisted")
+            case .active: String(localized: "Available")
+            case .finalReview: String(localized: "Available")
+            case .positive: String(localized: "Purchased")
+            case .negative: String(localized: "Passed")
             }
         case .document:
             switch status {
-            case .pending: "Filed"
-            case .active: "Processing"
-            case .finalReview: "Processing"
-            case .positive: "Ready"
-            case .negative: "Denied"
+            case .pending: String(localized: "Filed")
+            case .active: String(localized: "Processing")
+            case .finalReview: String(localized: "Processing")
+            case .positive: String(localized: "Ready")
+            case .negative: String(localized: "Denied")
             }
         case .permit:
             switch status {
-            case .pending: "Applied"
-            case .active: "Review"
-            case .finalReview: "Inspection"
-            case .positive: "Approved"
-            case .negative: "Denied"
+            case .pending: String(localized: "Applied")
+            case .active: String(localized: "Review")
+            case .finalReview: String(localized: "Inspection")
+            case .positive: String(localized: "Approved")
+            case .negative: String(localized: "Denied")
             }
         case .eventRegistration:
             switch status {
-            case .pending: "Registered"
-            case .active: "Registered"
-            case .finalReview: "Registered"
-            case .positive: "Confirmed"
-            case .negative: "Full"
+            case .pending: String(localized: "Registered")
+            case .active: String(localized: "Registered")
+            case .finalReview: String(localized: "Registered")
+            case .positive: String(localized: "Confirmed")
+            case .negative: String(localized: "Full")
             }
         case .eventWaitlist:
             switch status {
-            case .pending: "Waitlisted"
-            case .active: "Opened"
-            case .finalReview: "Opened"
-            case .positive: "Confirmed"
-            case .negative: "Expired"
+            case .pending: String(localized: "Waitlisted")
+            case .active: String(localized: "Opened")
+            case .finalReview: String(localized: "Opened")
+            case .positive: String(localized: "Confirmed")
+            case .negative: String(localized: "Expired")
             }
         }
     }

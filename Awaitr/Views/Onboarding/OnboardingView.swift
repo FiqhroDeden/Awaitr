@@ -164,7 +164,7 @@ extension OnboardingView {
                 GlassCard(category: category) {
                     VStack(spacing: 6) {
                         Text(category.emoji)
-                            .font(.system(size: 28))
+                            .font(Theme.Typography.title)
                         Text(category.label)
                             .font(.system(.caption, design: .rounded).weight(.semibold))
                             .foregroundStyle(Theme.TextColors.dark)
@@ -211,7 +211,7 @@ extension OnboardingView {
                 HStack {
                     ForEach(demoStages, id: \.self) { status in
                         Text(demoTemplate.shortLabel(for: status))
-                            .font(.system(size: 9, weight: .medium, design: .rounded))
+                            .font(Theme.Typography.smallBadge)
                             .foregroundStyle(Theme.TextColors.muted)
                             .frame(maxWidth: .infinity)
                     }

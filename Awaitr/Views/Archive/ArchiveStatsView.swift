@@ -34,7 +34,7 @@ struct ArchiveStatsView: View {
 
     private var sectionLabel: some View {
         Text("OUTCOMES")
-            .font(.system(size: 11, weight: .semibold))
+            .font(Theme.Typography.sectionLabel)
             .foregroundStyle(Theme.TextColors.muted)
             .tracking(0.8)
     }
@@ -63,28 +63,30 @@ struct ArchiveStatsView: View {
 
             // Center percentage
             Text(percentageText)
-                .font(.system(size: 16, weight: .bold, design: .rounded))
+                .font(Theme.Typography.numericCounter)
                 .foregroundStyle(Theme.TextColors.dark)
         }
         .frame(width: 80, height: 80)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(percentageText) acceptance rate, \(accepted) successful, \(rejected) unsuccessful")
     }
 
     // MARK: - Legend
 
     private var legend: some View {
         VStack(alignment: .leading, spacing: 8) {
-            legendRow(color: Color(hex: "3B6D11"), label: "\(accepted) Successful")
-            legendRow(color: Color(hex: "E24B4A"), label: "\(rejected) Unsuccessful")
+            legendRow(icon: "checkmark.circle.fill", color: Color(hex: "3B6D11"), label: "\(accepted) Successful")
+            legendRow(icon: "xmark.circle.fill", color: Color(hex: "E24B4A"), label: "\(rejected) Unsuccessful")
         }
     }
 
-    private func legendRow(color: Color, label: String) -> some View {
+    private func legendRow(icon: String, color: Color, label: LocalizedStringKey) -> some View {
         HStack(spacing: 6) {
-            Circle()
-                .fill(color)
+            Image(systemName: icon)
+                .foregroundStyle(color)
                 .frame(width: 10, height: 10)
             Text(label)
-                .font(.system(size: 13, weight: .semibold))
+                .font(Theme.Typography.captionBold)
                 .foregroundStyle(Theme.TextColors.dark)
         }
     }

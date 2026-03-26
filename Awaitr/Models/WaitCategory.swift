@@ -26,10 +26,10 @@ enum WaitCategory: String, Codable, CaseIterable, Identifiable, Sendable {
 
     var shortLabel: String {
         switch self {
-        case .job: "Job"
-        case .product: "Product"
-        case .admin: "Admin"
-        case .event: "Event"
+        case .job: String(localized: "Job")
+        case .product: String(localized: "Product")
+        case .admin: String(localized: "Admin")
+        case .event: String(localized: "Event")
         }
     }
 

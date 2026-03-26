@@ -10,6 +10,7 @@ struct FABButton: View {
 
     @State private var isPressed = false
     @State private var isDragging = false
+    @State private var tapTrigger = 0
     @State private var position: CGPoint = .zero
     @State private var dragOffset: CGSize = .zero
     @State private var hasInitialized = false
@@ -68,7 +69,9 @@ struct FABButton: View {
                     position = clampToSafeArea(position, in: newSize)
                 }
         }
+        .sensoryFeedback(.impact(weight: .medium), trigger: tapTrigger)
         .accessibilityLabel("Add new item")
+        .accessibilityHint("Double tap to add a new waitlist item")
     }
 
     // MARK: - Content
@@ -119,6 +122,7 @@ struct FABButton: View {
     // MARK: - Tap Animation
 
     private func performAction() {
+        tapTrigger += 1
         withAnimation(Theme.Animations.fabBounce) {
             isPressed = true
         }

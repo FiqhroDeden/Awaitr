@@ -57,11 +57,21 @@ enum Theme {
 
     enum Typography {
         static let pageTitle      = Font.system(.largeTitle, design: .rounded).weight(.bold)
+        static let title          = Font.system(.title2, design: .rounded).weight(.bold)
         static let sectionHeader  = Font.system(.title2, design: .rounded).weight(.semibold)
         static let cardTitle      = Font.system(.body, design: .rounded).weight(.medium)
         static let body           = Font.system(.body)
+        static let bodyMedium     = Font.system(.subheadline, design: .rounded).weight(.medium)
+        static let buttonLabel    = Font.system(.subheadline, design: .rounded).weight(.semibold)
         static let caption        = Font.system(.footnote).weight(.medium)
+        static let captionBold    = Font.system(.footnote, design: .rounded).weight(.semibold)
+        static let smallLabel     = Font.system(.caption).weight(.medium)
+        static let sectionLabel   = Font.system(.caption2, design: .rounded).weight(.semibold)
+        static let smallBadge     = Font.system(.caption2, design: .rounded).weight(.bold)
         static let numericCounter = Font.system(.title, design: .rounded).weight(.bold)
+        static let largeIcon      = Font.system(.largeTitle)
+        static let statNumber     = Font.system(.caption2, design: .rounded).weight(.bold)
+        static let searchField    = Font.system(.subheadline)
     }
 
     // MARK: Animations

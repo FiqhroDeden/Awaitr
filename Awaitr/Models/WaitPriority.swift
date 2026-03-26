@@ -22,6 +22,14 @@ enum WaitPriority: String, Codable, CaseIterable, Identifiable, Sendable {
         }
     }
 
+    var localizedName: String {
+        switch self {
+        case .high: String(localized: "High")
+        case .medium: String(localized: "Medium")
+        case .low: String(localized: "Low")
+        }
+    }
+
     var systemImage: String {
         switch self {
         case .high: "exclamationmark.circle.fill"

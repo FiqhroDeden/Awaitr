@@ -33,9 +33,9 @@ struct CategoryPickerView: View {
         } label: {
             HStack(spacing: 6) {
                 Text(category.emoji)
-                    .font(.system(size: 16))
+                    .font(Theme.Typography.cardTitle)
                 Text(category.shortLabel)
-                    .font(.system(size: 12, weight: .semibold))
+                    .font(Theme.Typography.captionBold)
                     .foregroundStyle(isSelected ? category.color : Theme.TextColors.muted)
             }
             .frame(maxWidth: .infinity)
