@@ -5,6 +5,7 @@
 
 import SwiftUI
 import SwiftData
+import WidgetKit
 
 @MainActor @Observable
 final class AddEditViewModel {
@@ -140,5 +141,8 @@ final class AddEditViewModel {
 
             modelContext.insert(newItem)
         }
+
+        try? modelContext.save()
+        WidgetCenter.shared.reloadAllTimelines()
     }
 }

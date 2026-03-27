@@ -5,6 +5,7 @@
 
 import SwiftUI
 import SwiftData
+import WidgetKit
 import os
 
 @MainActor @Observable
@@ -32,6 +33,9 @@ final class SettingsViewModel {
         }
     }
 
+    /// Currently selected alternate icon name (`nil` = default).
+    var selectedIconName: String? = UIApplication.shared.alternateIconName
+
     private let modelContext: ModelContext
     private let logger = Logger(subsystem: "com.awaitr", category: "Settings")
 
@@ -39,6 +43,24 @@ final class SettingsViewModel {
         self.modelContext = modelContext
         self.defaultReminderHour = UserDefaults.standard.object(forKey: "defaultReminderHour") as? Int ?? 9
         self.defaultReminderMinute = UserDefaults.standard.object(forKey: "defaultReminderMinute") as? Int ?? 0
+    }
+
+    // MARK: - App Icon
+
+    func setAlternateIcon(_ name: String?) {
+        let previousName = selectedIconName
+        selectedIconName = name
+
+        Task {
+            do {
+                try await UIApplication.shared.setAlternateIconName(name)
+                logger.info("App icon changed to: \(name ?? "Default")")
+            } catch {
+                // Revert UI if the icon change fails (e.g., icon not registered yet)
+                selectedIconName = previousName
+                logger.warning("Icon not available yet: \(name ?? "Default"). Add icon assets in Xcode.")
+            }
+        }
     }
 
     // MARK: - Notifications
@@ -87,6 +109,8 @@ final class SettingsViewModel {
             modelContext.delete(item)
         }
         NotificationService.cancelAll()
+        try? modelContext.save()
+        WidgetCenter.shared.reloadAllTimelines()
         logger.info("All data cleared")
     }
 }

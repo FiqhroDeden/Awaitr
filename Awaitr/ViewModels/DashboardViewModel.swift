@@ -5,11 +5,14 @@
 
 import SwiftUI
 import SwiftData
+import WidgetKit
 
 @MainActor @Observable
 final class DashboardViewModel {
     var selectedCategory: WaitCategory?
     var searchText: String = ""
+    var selectedStatuses: Set<WaitStatus> = []
+    var selectedPriorities: Set<WaitPriority> = []
 
     private let modelContext: ModelContext
 
@@ -17,9 +20,24 @@ final class DashboardViewModel {
         self.modelContext = modelContext
     }
 
+    // MARK: - Filter State
+
+    var activeFilterCount: Int {
+        selectedStatuses.count + selectedPriorities.count
+    }
+
+    var hasActiveFilters: Bool {
+        activeFilterCount > 0
+    }
+
+    func clearAllFilters() {
+        selectedStatuses.removeAll()
+        selectedPriorities.removeAll()
+    }
+
     // MARK: - Filtering
 
-    /// Filters items by selected category and search text.
+    /// Filters items by category, search text, status, and priority.
     /// Items come from View's @Query — ViewModel only does in-memory filtering.
     func filteredItems(from items: [WaitItem]) -> [WaitItem] {
         var result = items
@@ -30,7 +48,18 @@ final class DashboardViewModel {
 
         if !searchText.isEmpty {
             let query = searchText.lowercased()
-            result = result.filter { $0.title.lowercased().contains(query) }
+            result = result.filter {
+                $0.title.lowercased().contains(query) ||
+                $0.notes.lowercased().contains(query)
+            }
+        }
+
+        if !selectedStatuses.isEmpty {
+            result = result.filter { selectedStatuses.contains($0.status) }
+        }
+
+        if !selectedPriorities.isEmpty {
+            result = result.filter { selectedPriorities.contains($0.priority) }
         }
 
         return result.sorted { lhs, rhs in
@@ -55,5 +84,7 @@ final class DashboardViewModel {
     func deleteItem(_ item: WaitItem) {
         NotificationService.cancel(for: item.id)
         modelContext.delete(item)
+        try? modelContext.save()
+        WidgetCenter.shared.reloadAllTimelines()
     }
 }

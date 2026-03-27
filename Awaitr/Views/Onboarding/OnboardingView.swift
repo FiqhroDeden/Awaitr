@@ -32,7 +32,7 @@ struct OnboardingView: View {
             colors: [
                 Theme.CategoryColors.job.opacity(0.08),
                 Theme.CategoryColors.product.opacity(0.05),
-                .white
+                Theme.BackgroundColors.base
             ],
             startPoint: .topLeading,
             endPoint: .bottomTrailing

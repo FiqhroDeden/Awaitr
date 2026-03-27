@@ -17,6 +17,7 @@ struct SettingsView: View {
             ScrollView {
                 VStack(spacing: 14) {
                     generalCard
+                    iconCard
                     appCard
                     aboutCard
                 }
@@ -186,6 +187,19 @@ struct SettingsView: View {
         return formatter.string(from: viewModel.defaultReminderTime)
     }
 
+    // MARK: - Icon Card
+
+    private var iconCard: some View {
+        VStack(spacing: 0) {
+            IconPickerView(
+                selectedIconId: viewModel?.selectedIconName,
+                onSelect: { name in viewModel?.setAlternateIcon(name) }
+            )
+            .padding(.vertical, Theme.Spacing.md)
+        }
+        .glassCard()
+    }
+
     // MARK: - App Card
 
     private var appCard: some View {
@@ -230,7 +244,7 @@ struct SettingsView: View {
                 .font(Theme.Typography.sectionHeader)
                 .foregroundStyle(Theme.CategoryColors.job)
 
-            Text("Version 1.0.0")
+            Text("Version 1.1.0")
                 .font(Theme.Typography.smallLabel)
                 .foregroundStyle(Theme.TextColors.secondary)
                 .padding(.top, 4)

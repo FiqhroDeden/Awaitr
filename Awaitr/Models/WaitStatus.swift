@@ -23,6 +23,43 @@ enum WaitStatus: String, Codable, CaseIterable, Identifiable, Sendable {
     var isPositive: Bool { self == .positive }
     var isNegative: Bool { self == .negative }
 
+    /// Non-terminal statuses shown in dashboard filters.
+    static var filterCases: [WaitStatus] {
+        [.pending, .active, .finalReview]
+    }
+
+    // MARK: - Display
+
+    var label: LocalizedStringKey {
+        switch self {
+        case .pending: "Pending"
+        case .active: "Active"
+        case .finalReview: "Final Review"
+        case .positive: "Successful"
+        case .negative: "Unsuccessful"
+        }
+    }
+
+    var shortLabel: String {
+        switch self {
+        case .pending: String(localized: "Pending")
+        case .active: String(localized: "Active")
+        case .finalReview: String(localized: "Review")
+        case .positive: String(localized: "Success")
+        case .negative: String(localized: "Fail")
+        }
+    }
+
+    var filterIcon: String {
+        switch self {
+        case .pending: "clock"
+        case .active: "bolt.fill"
+        case .finalReview: "eye.fill"
+        case .positive: "checkmark.circle.fill"
+        case .negative: "xmark.circle.fill"
+        }
+    }
+
     // MARK: - Migration Decoder
 
     init(from decoder: Decoder) throws {

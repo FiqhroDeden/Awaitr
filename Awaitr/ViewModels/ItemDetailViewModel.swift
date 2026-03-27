@@ -5,6 +5,7 @@
 
 import SwiftUI
 import SwiftData
+import WidgetKit
 
 @MainActor @Observable
 final class ItemDetailViewModel {
@@ -23,18 +24,21 @@ final class ItemDetailViewModel {
         if item.status.isTerminal {
             NotificationService.cancel(for: item.id)
         }
+        saveAndReloadWidget()
     }
 
     func acceptItem() {
         item.transition(to: .positive)
         NotificationService.cancel(for: item.id)
         ReviewService.recordArchiveAndRequestReviewIfNeeded()
+        saveAndReloadWidget()
     }
 
     func rejectItem() {
         item.reject()
         NotificationService.cancel(for: item.id)
         ReviewService.recordArchiveAndRequestReviewIfNeeded()
+        saveAndReloadWidget()
     }
 
     // MARK: - Archive
@@ -43,6 +47,7 @@ final class ItemDetailViewModel {
         item.archive()
         NotificationService.cancel(for: item.id)
         ReviewService.recordArchiveAndRequestReviewIfNeeded()
+        saveAndReloadWidget()
     }
 
     // MARK: - Delete
@@ -50,6 +55,14 @@ final class ItemDetailViewModel {
     func deleteItem() {
         NotificationService.cancel(for: item.id)
         modelContext.delete(item)
+        saveAndReloadWidget()
+    }
+
+    // MARK: - Widget
+
+    private func saveAndReloadWidget() {
+        try? modelContext.save()
+        WidgetCenter.shared.reloadAllTimelines()
     }
 
     // MARK: - Notes

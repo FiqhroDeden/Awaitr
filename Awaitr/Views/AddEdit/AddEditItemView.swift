@@ -14,13 +14,15 @@ struct AddEditItemView: View {
     @State private var saveTrigger = 0
 
     let item: WaitItem?
+    let preselectedCategory: WaitCategory?
 
     private enum DateField: Hashable {
         case submitted, expected, followUp
     }
 
-    init(item: WaitItem? = nil) {
+    init(item: WaitItem? = nil, preselectedCategory: WaitCategory? = nil) {
         self.item = item
+        self.preselectedCategory = preselectedCategory
     }
 
     var body: some View {
@@ -61,7 +63,11 @@ struct AddEditItemView: View {
                 if let item {
                     viewModel = AddEditViewModel(item: item, modelContext: modelContext)
                 } else {
-                    viewModel = AddEditViewModel(modelContext: modelContext)
+                    let vm = AddEditViewModel(modelContext: modelContext)
+                    if let preselectedCategory {
+                        vm.updateCategory(preselectedCategory)
+                    }
+                    viewModel = vm
                 }
             }
         }

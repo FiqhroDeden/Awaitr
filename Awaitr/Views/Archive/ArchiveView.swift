@@ -12,6 +12,17 @@ struct ArchiveView: View {
     @State private var unarchiveTrigger = 0
     @Environment(\.modelContext) private var modelContext
 
+    private var searchTextBinding: Binding<String> {
+        Binding(
+            get: { viewModel?.searchText ?? "" },
+            set: { viewModel?.searchText = $0 }
+        )
+    }
+
+    private var displayedItems: [WaitItem] {
+        viewModel?.filteredItems(from: archivedItems) ?? archivedItems
+    }
+
     var body: some View {
         NavigationStack {
             Group {
@@ -22,6 +33,7 @@ struct ArchiveView: View {
                 }
             }
             .navigationTitle("Archive")
+            .searchable(text: searchTextBinding, prompt: "Search archived items")
         }
         .task {
             if viewModel == nil {
@@ -35,6 +47,7 @@ struct ArchiveView: View {
     private var archiveList: some View {
         List {
             statsSection
+            chartSections
             monthSections
         }
         .listStyle(.plain)
@@ -51,11 +64,38 @@ struct ArchiveView: View {
     private var statsSection: some View {
         Section {
             ArchiveStatsView(
-                accepted: viewModel?.totalAccepted(from: archivedItems) ?? 0,
-                rejected: viewModel?.totalRejected(from: archivedItems) ?? 0
+                accepted: viewModel?.totalAccepted(from: displayedItems) ?? 0,
+                rejected: viewModel?.totalRejected(from: displayedItems) ?? 0
             )
             .listRowSeparator(.hidden)
             .listRowInsets(EdgeInsets(top: 0, leading: Theme.Spacing.lg, bottom: 18, trailing: Theme.Spacing.lg))
+        }
+    }
+
+    // MARK: - Charts
+
+    @ViewBuilder
+    private var chartSections: some View {
+        if displayedItems.count >= 2 {
+            Section {
+                CategoryBreakdownChart(
+                    data: viewModel?.categoryBreakdown(from: displayedItems) ?? []
+                )
+                .listRowSeparator(.hidden)
+                .listRowInsets(EdgeInsets(top: 4, leading: Theme.Spacing.lg, bottom: 4, trailing: Theme.Spacing.lg))
+
+                MonthlyTrendsChart(
+                    data: viewModel?.monthlyTrends(from: displayedItems) ?? []
+                )
+                .listRowSeparator(.hidden)
+                .listRowInsets(EdgeInsets(top: 4, leading: Theme.Spacing.lg, bottom: 4, trailing: Theme.Spacing.lg))
+
+                AverageWaitTimeChart(
+                    data: viewModel?.averageWaitTime(from: displayedItems) ?? []
+                )
+                .listRowSeparator(.hidden)
+                .listRowInsets(EdgeInsets(top: 4, leading: Theme.Spacing.lg, bottom: 18, trailing: Theme.Spacing.lg))
+            }
         }
     }
 
@@ -63,7 +103,7 @@ struct ArchiveView: View {
 
     @ViewBuilder
     private var monthSections: some View {
-        let groups = viewModel?.groupedByMonth(from: archivedItems) ?? []
+        let groups = viewModel?.groupedByMonth(from: displayedItems) ?? []
         ForEach(Array(groups.enumerated()), id: \.element.key) { _, group in
             Section {
                 ForEach(group.items) { item in

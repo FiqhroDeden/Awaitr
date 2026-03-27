@@ -40,6 +40,7 @@ struct ContentView: View {
     @State private var selectedTab: AppTab = .home
     @State private var navigationPath = NavigationPath()
     @State private var showAddSheet = false
+    @State private var addSheetCategory: WaitCategory?
     @AppStorage("appearanceMode") private var appearanceMode: String = AppearanceMode.auto.rawValue
     @Environment(NavigationCoordinator.self) private var coordinator
     @Environment(\.modelContext) private var modelContext
@@ -72,14 +73,21 @@ struct ContentView: View {
                     .ignoresSafeArea(.keyboard)
             }
         }
-        .sheet(isPresented: $showAddSheet) {
-            AddEditItemView()
+        .sheet(isPresented: $showAddSheet, onDismiss: { addSheetCategory = nil }) {
+            AddEditItemView(preselectedCategory: addSheetCategory)
         }
         .preferredColorScheme(AppearanceMode(rawValue: appearanceMode)?.colorScheme)
         .onChange(of: coordinator.pendingItemId) { _, itemId in
             guard let itemId else { return }
             navigateToItem(id: itemId)
             coordinator.pendingItemId = nil
+        }
+        .onChange(of: coordinator.pendingAddCategory) { _, category in
+            guard let category else { return }
+            selectedTab = .home
+            addSheetCategory = category
+            showAddSheet = true
+            coordinator.pendingAddCategory = nil
         }
     }
 

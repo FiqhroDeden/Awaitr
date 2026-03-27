@@ -11,6 +11,7 @@ struct DashboardView: View {
     @State private var viewModel: DashboardViewModel?
     @Environment(\.modelContext) private var modelContext
     @State private var showSearch = false
+    @State private var showFilters = false
 
     let path: Binding<NavigationPath>
     let onAddTapped: () -> Void
@@ -28,6 +29,20 @@ struct DashboardView: View {
         Binding(
             get: { viewModel?.searchText ?? "" },
             set: { viewModel?.searchText = $0 }
+        )
+    }
+
+    private var selectedStatusesBinding: Binding<Set<WaitStatus>> {
+        Binding(
+            get: { viewModel?.selectedStatuses ?? [] },
+            set: { viewModel?.selectedStatuses = $0 }
+        )
+    }
+
+    private var selectedPrioritiesBinding: Binding<Set<WaitPriority>> {
+        Binding(
+            get: { viewModel?.selectedPriorities ?? [] },
+            set: { viewModel?.selectedPriorities = $0 }
         )
     }
 
@@ -114,6 +129,7 @@ struct DashboardView: View {
                 }
                 .accessibilityElement(children: .combine)
                 Spacer()
+                filterButton
                 searchButton
             }
 
@@ -121,9 +137,50 @@ struct DashboardView: View {
                 searchField
                     .transition(.opacity.combined(with: .move(edge: .trailing)))
             }
+
+            if showFilters {
+                FilterPanelView(
+                    selectedStatuses: selectedStatusesBinding,
+                    selectedPriorities: selectedPrioritiesBinding,
+                    onClear: { viewModel?.clearAllFilters() }
+                )
+                .transition(.opacity.combined(with: .move(edge: .top)))
+            }
         }
         .padding(.horizontal)
         .animation(Theme.Animations.springFast, value: showSearch)
+        .animation(Theme.Animations.springFast, value: showFilters)
+    }
+
+    private var filterButton: some View {
+        Button {
+            showFilters.toggle()
+            if !showFilters {
+                viewModel?.clearAllFilters()
+            }
+        } label: {
+            ZStack(alignment: .topTrailing) {
+                Image(systemName: showFilters ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
+                    .font(Theme.Typography.cardTitle)
+                    .foregroundStyle(showFilters ? Theme.CategoryColors.job : Theme.TextColors.secondary)
+                    .frame(width: 40, height: 40)
+                    .background(Theme.GlassColors.inactiveBar)
+                    .clipShape(Circle())
+
+                if let count = viewModel?.activeFilterCount, count > 0 {
+                    Text("\(count)")
+                        .font(.caption2.bold())
+                        .foregroundStyle(.white)
+                        .frame(width: 16, height: 16)
+                        .background(Theme.CategoryColors.product)
+                        .clipShape(Circle())
+                        .offset(x: 2, y: -2)
+                }
+            }
+        }
+        .sensoryFeedback(.impact(weight: .light), trigger: showFilters)
+        .accessibilityLabel(showFilters ? "Close filters" : "Filter items")
+        .accessibilityValue(viewModel?.hasActiveFilters == true ? "\(viewModel?.activeFilterCount ?? 0) active filters" : "No filters")
     }
 
     private var searchButton: some View {

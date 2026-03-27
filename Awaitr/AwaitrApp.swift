@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftData
 import UserNotifications
+import WidgetKit
 
 @main
 struct AwaitrApp: App {
@@ -18,7 +19,11 @@ struct AwaitrApp: App {
         let schema = Schema([
             WaitItem.self,
         ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+        let modelConfiguration = ModelConfiguration(
+            schema: schema,
+            isStoredInMemoryOnly: false,
+            groupContainer: .identifier(SharedConstants.appGroupID)
+        )
 
         do {
             return try ModelContainer(for: schema, configurations: [modelConfiguration])
@@ -46,6 +51,9 @@ struct AwaitrApp: App {
                 .fullScreenCover(isPresented: .constant(!hasSeenOnboarding)) {
                     OnboardingView()
                 }
+                .onOpenURL { url in
+                    handleDeepLink(url)
+                }
                 .task {
                     notificationDelegate.coordinator = navigationCoordinator
                     #if DEBUG
@@ -54,6 +62,29 @@ struct AwaitrApp: App {
                 }
         }
         .modelContainer(sharedModelContainer)
+    }
+
+    // MARK: - Deep Links
+
+    private func handleDeepLink(_ url: URL) {
+        guard url.scheme == "awaitr" else { return }
+
+        switch url.host {
+        case "item":
+            // awaitr://item/{uuid} → navigate to item detail
+            if let idString = url.pathComponents.last,
+               let itemId = UUID(uuidString: idString) {
+                navigationCoordinator.pendingItemId = itemId
+            }
+        case "add":
+            // awaitr://add?category=job → open add sheet with category
+            let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+            let categoryString = components?.queryItems?.first(where: { $0.name == "category" })?.value
+            let category = categoryString.flatMap { WaitCategory(rawValue: $0) }
+            navigationCoordinator.pendingAddCategory = category ?? .job
+        default:
+            break
+        }
     }
 
     // MARK: - Demo Seed
