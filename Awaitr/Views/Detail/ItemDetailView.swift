@@ -57,9 +57,6 @@ struct ItemDetailView: View {
     private var metaBar: some View {
         HStack {
             CategoryBadge(category: item.category)
-            Text(item.category.shortLabel)
-                .font(Theme.Typography.caption)
-                .foregroundStyle(Theme.TextColors.secondary)
             Spacer()
             PriorityDot(priority: item.priority)
             Text("\(item.priority.localizedName) priority")
